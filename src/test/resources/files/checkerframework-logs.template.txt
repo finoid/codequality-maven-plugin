@@ -1,0 +1,31 @@
+Recompiling the module because of [1mchanged source code[m.
+[path] bad path element "/Users/Nicklas/.m2/repository/com/ibm/mq/com.ibm.mq.jakarta.client/9.4.0.0/jakarta.jms-api.jar": no such file or directory
+[path] bad path element "/Users/Nicklas/.m2/repository/com/ibm/mq/com.ibm.mq.jakarta.client/9.4.0.0/fscontext.jar": no such file or directory
+[path] bad path element "/Users/Nicklas/.m2/repository/com/ibm/mq/com.ibm.mq.jakarta.client/9.4.0.0/providerutil.jar": no such file or directory
+[path] bad path element "/Users/Nicklas/.m2/repository/com/ibm/mq/com.ibm.mq.jakarta.client/9.4.0.0/bcpkix-jdk18on.jar": no such file or directory
+[path] bad path element "/Users/Nicklas/.m2/repository/com/ibm/mq/com.ibm.mq.jakarta.client/9.4.0.0/bcprov-jdk18on.jar": no such file or directory
+[path] bad path element "/Users/Nicklas/.m2/repository/com/ibm/mq/com.ibm.mq.jakarta.client/9.4.0.0/bcutil-jdk18on.jar": no such file or directory
+[path] bad path element "/Users/Nicklas/.m2/repository/com/ibm/mq/com.ibm.mq.jakarta.client/9.4.0.0/org.json.jar": no such file or directory
+[path] bad path element "/Users/Nicklas/.m2/repository/com/sun/xml/bind/jaxb-osgi/4.0.5/jakarta.xml.bind-api.jar": no such file or directory
+%1$s/src/main/java/io/github/finoid/aml/AmlApplication.java:[10,29] error: [required.method.not.called] @MustCall method close may not have been invoked on SpringApplication.run(AmlApplication.class, args) or any of its aliases.
+  The type of object is: org.springframework.context.ConfigurableApplicationContext.
+  Reason for going out of scope: regular method exit
+%1$s/src/main/java/io/github/finoid/aml/config/CacheConfiguration.java:[67,100] [deprecation] EVERYTHING in DefaultTyping has been deprecated
+%1$s/src/main/java/io/github/finoid/aml/service/DeletionSignalService.java:[70,25] error: [required.method.not.called] @MustCall method close may not have been invoked on targetStream or any of its aliases.
+  The type of object is: java.io.InputStream.
+  Reason for going out of scope: regular method exit
+%1$s/src/main/java/io/github/finoid/aml/clients/ftp/SFTPClient.java:[104,28] error: [required.method.not.called] @MustCall method close may not have been invoked on inputStream or any of its aliases.
+  The type of object is: java.io.InputStream.
+  Reason for going out of scope: regular method exit
+%1$s/src/main/java/io/github/finoid/aml/config/GetRelationsConfiguration.java:[33,34] error: [required.method.not.called] @MustCall method close may not have been invoked on client or any of its aliases.
+  The type of object is: org.apache.hc.client5.http.impl.classic.CloseableHttpClient.
+  Reason for going out of scope: regular method exit
+%1$s/src/main/java/io/github/finoid/aml/config/PartRepresentativesConfiguration.java:[33,34] error: [required.method.not.called] @MustCall method close may not have been invoked on client or any of its aliases.
+  The type of object is: org.apache.hc.client5.http.impl.classic.CloseableHttpClient.
+  Reason for going out of scope: regular method exit
+%1$s/src/main/java/io/github/finoid/aml/config/RiskClassConfiguration.java:[33,34] error: [required.method.not.called] @MustCall method close may not have been invoked on client or any of its aliases.
+  The type of object is: org.apache.hc.client5.http.impl.classic.CloseableHttpClient.
+  Reason for going out of scope: regular method exit
+%1$s/src/main/java/io/github/finoid/aml/utils/APMUtils.java:[55,25] [try] auto-closeable resource scope is never referenced in body of corresponding try statement
+%1$s/src/main/java/io/github/finoid/aml/utils/IOUtils.java:[43,21] error: [type.arguments.not.inferred] Could not infer type arguments for Arrays.stream
+  unsatisfiable constraint: @MustCall("close") Closeable <: @MustCall Object

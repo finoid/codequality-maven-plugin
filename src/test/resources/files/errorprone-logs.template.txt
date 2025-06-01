@@ -1,0 +1,5 @@
+Recompiling the module because of [1mchanged source code[m.
+[path] bad path element "%1$s/finoid-otel/otel-core/target/classes": no such file or directory
+%1$s/src/main/java/io/github/finoid/library/otel/OpenTelemetryUtils.java:[24,24] [StringCaseLocaleUsage] Specify a `Locale` when calling `String#to{Lower,Upper}Case`. (Note: there are multiple suggested fixes; the third may be most appropriate if you're dealing with ASCII Strings.)
+    (see https://errorprone.info/bugpattern/StringCaseLocaleUsage)
+  Did you mean '.toLowerCase(Locale.ROOT);' or '.toLowerCase(Locale.getDefault());' or 'return Ascii.toLowerCase(currentSpan.getSpanContext()'?

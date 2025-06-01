@@ -1,0 +1,94 @@
+io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogParserUnitTest.givenValidLogFile_whenParse_thenExpectedViolations=[
+  [
+    {
+      "columnNumber" : 29,
+      "description" : "CheckerFramework: @MustCall method close may not have been invoked on SpringApplication.run(AmlApplication.class, args) or any of its aliases.",
+      "fingerprint" : "488225c2092509904a1e0fce4a9181a99a74603b417dab952efb205db72521f3",
+      "fullPath" : "***MASKED***",
+      "line" : 10,
+      "relativePath" : "src/main/java/io/github/finoid/aml/AmlApplication.java",
+      "rule" : "required.method.not.called",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 100,
+      "description" : "CheckerFramework: EVERYTHING in DefaultTyping has been deprecated",
+      "fingerprint" : "f80ac70144bfa9e5ef1064e25b8cd641b28c29fc32400d33e893091453eaaf8a",
+      "fullPath" : "***MASKED***",
+      "line" : 67,
+      "relativePath" : "src/main/java/io/github/finoid/aml/config/CacheConfiguration.java",
+      "rule" : "deprecation",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 25,
+      "description" : "CheckerFramework: @MustCall method close may not have been invoked on targetStream or any of its aliases.",
+      "fingerprint" : "227c1edd0ba36dbf78a8dcd900590e323c10a3c06a31c95d9d761696ba00b461",
+      "fullPath" : "***MASKED***",
+      "line" : 70,
+      "relativePath" : "src/main/java/io/github/finoid/aml/service/DeletionSignalService.java",
+      "rule" : "required.method.not.called",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 28,
+      "description" : "CheckerFramework: @MustCall method close may not have been invoked on inputStream or any of its aliases.",
+      "fingerprint" : "796f84c5642ec535e37bd2f31b7a16b11da171e01feb3d37449198d30ac6c221",
+      "fullPath" : "***MASKED***",
+      "line" : 104,
+      "relativePath" : "src/main/java/io/github/finoid/aml/clients/ftp/SFTPClient.java",
+      "rule" : "required.method.not.called",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 34,
+      "description" : "CheckerFramework: @MustCall method close may not have been invoked on client or any of its aliases.",
+      "fingerprint" : "41c3cced2a947f267bed87301cf6968b44663df3aaa7ffc6df8af81b423f65b9",
+      "fullPath" : "***MASKED***",
+      "line" : 33,
+      "relativePath" : "src/main/java/io/github/finoid/aml/config/GetRelationsConfiguration.java",
+      "rule" : "required.method.not.called",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 34,
+      "description" : "CheckerFramework: @MustCall method close may not have been invoked on client or any of its aliases.",
+      "fingerprint" : "2e73121c6b35a5d884cbca0751286e9612d12aad4c1853928d963ecd366f93af",
+      "fullPath" : "***MASKED***",
+      "line" : 33,
+      "relativePath" : "src/main/java/io/github/finoid/aml/config/PartRepresentativesConfiguration.java",
+      "rule" : "required.method.not.called",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 34,
+      "description" : "CheckerFramework: @MustCall method close may not have been invoked on client or any of its aliases.",
+      "fingerprint" : "a3012b54988177fb6ce15e56b0b7a491d46f93784346fe4bbef0e004d4385132",
+      "fullPath" : "***MASKED***",
+      "line" : 33,
+      "relativePath" : "src/main/java/io/github/finoid/aml/config/RiskClassConfiguration.java",
+      "rule" : "required.method.not.called",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 25,
+      "description" : "CheckerFramework: auto-closeable resource scope is never referenced in body of corresponding try statement",
+      "fingerprint" : "746b3f2abe549c97eb481c68092696c7ca1f74412bb24c4480be00e285b3df6a",
+      "fullPath" : "***MASKED***",
+      "line" : 55,
+      "relativePath" : "src/main/java/io/github/finoid/aml/utils/APMUtils.java",
+      "rule" : "try",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 21,
+      "description" : "CheckerFramework: Could not infer type arguments for Arrays.stream",
+      "fingerprint" : "1f4c4ae4a798a1ed7e4f0484873241546c366aec6119b7d2dad8f51144a21a7b",
+      "fullPath" : "***MASKED***",
+      "line" : 43,
+      "relativePath" : "src/main/java/io/github/finoid/aml/utils/IOUtils.java",
+      "rule" : "type.arguments.not.inferred",
+      "severity" : "MINOR"
+    }
+  ]
+]

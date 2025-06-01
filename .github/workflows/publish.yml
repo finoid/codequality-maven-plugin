@@ -1,0 +1,53 @@
+name: Publish to Maven Central
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    name: Publish Maven package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'maven'
+          server-id: central
+          server-username: OSSRH_USERNAME
+          server-password: OSSRH_PASSWORD
+          gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
+
+      - name: Build and Test
+        run: mvn clean verify --batch-mode
+      
+      - name: Determine version from tag
+        id: version
+        run: |
+          RAW_TAG="${GITHUB_REF##*/}"
+          VERSION="${RAW_TAG#v}"
+
+          if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
+            VERSION="${VERSION}-SNAPSHOT"
+          fi
+
+          echo "Resolved version: $VERSION"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Set Maven version
+        run: mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
+
+      - name: Publish to Maven Central
+        run: mvn deploy --batch-mode
+        env:
+          OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+          OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
+          MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}

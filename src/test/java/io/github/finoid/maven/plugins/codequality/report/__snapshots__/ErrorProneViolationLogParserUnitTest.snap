@@ -1,0 +1,14 @@
+io.github.finoid.maven.plugins.codequality.report.ErrorProneViolationLogParserUnitTest.givenValidLogFile_whenParse_thenExpectedViolations=[
+  [
+    {
+      "columnNumber" : 24,
+      "description" : "ErrorProne: Specify a `Locale` when calling `String#to{Lower,Upper}Case`. (Note: there are multiple suggested fixes; the third may be most appropriate if you're dealing with ASCII Strings.)    (see https://errorprone.info/bugpattern/StringCaseLocaleUsage)  Did you mean '.toLowerCase(Locale.ROOT);' or '.toLowerCase(Locale.getDefault());' or 'return Ascii.toLowerCase(currentSpan.getSpanContext()'?",
+      "fingerprint" : "10542e731724aff6b495a26ed308eccebe18563fe10cf7aeca9320e5b6e70176",
+      "fullPath" : "***MASKED***",
+      "line" : 24,
+      "relativePath" : "src/main/java/io/github/finoid/library/otel/OpenTelemetryUtils.java",
+      "rule" : "StringCaseLocaleUsage",
+      "severity" : "MINOR"
+    }
+  ]
+]

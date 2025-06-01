@@ -1,0 +1,4 @@
+# Configure git to ensure line endings are correct for the host OS
+* text=auto
+
+mvnw text eol=lf
