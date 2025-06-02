@@ -46,7 +46,7 @@
         <sisu-maven-plugin.version>0.3.5</sisu-maven-plugin.version>
 
         <!-- Internal dependencies -->
-        <code-style.version>0.10.0</code-style.version>
+        <code-style.version>0.11.0</code-style.version>
 
         <!-- Test -->
         <commons-io.version>2.16.1</commons-io.version>
