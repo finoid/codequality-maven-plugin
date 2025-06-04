@@ -26,7 +26,7 @@ public class LogAndFileAppender implements Log {
     public LogAndFileAppender(final Logger logger, final File file, final LogLevel logLevel) throws FileNotFoundException {
         this.logger = Precondition.nonNull(logger, "Logger shouldn't be null");
         this.logLevel = Precondition.nonNull(logLevel, "LogLevel shouldn't be null");
-        this.printStream = new PrintStream(new FileOutputStream(Precondition.nonNull(file, "File shouldn't be null"), true));
+        this.printStream = new PrintStream(new FileOutputStream(Precondition.nonNull(file, "File shouldn't be null"), false));
     }
 
     @Override
