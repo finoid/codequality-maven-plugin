@@ -28,7 +28,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <checkstyle.version>10.17.0</checkstyle.version>
-        <checker-qual.version>3.48.3</checker-qual.version>
+        <checker-qual.version>3.49.4</checker-qual.version>
         <commons-lang3.version>3.14.0</commons-lang3.version>
         <doxia.version>1.12.0</doxia.version>
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
