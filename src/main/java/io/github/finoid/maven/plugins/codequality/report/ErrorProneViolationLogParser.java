@@ -1,10 +1,10 @@
 package io.github.finoid.maven.plugins.codequality.report;
 
-import org.codehaus.plexus.logging.Logger;
-import org.codehaus.plexus.logging.console.ConsoleLogger;
 import io.github.finoid.maven.plugins.codequality.exceptions.ParseException;
 import io.github.finoid.maven.plugins.codequality.step.ViolationConverter;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
+import org.codehaus.plexus.logging.Logger;
+import org.codehaus.plexus.logging.console.ConsoleLogger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -22,9 +22,9 @@ import java.util.regex.Pattern;
 @Singleton
 public class ErrorProneViolationLogParser implements ViolationLogParser {
     public static final Pattern VIOLATION_PATTERN =
-        Pattern.compile("^(?<path>.*):\\[(?<line>\\d+),(?<column>\\d+)\\] \\[(?<rule>.*)\\] (?<description>.*\\s*\\(.*\\s*.*)$");
+        Pattern.compile("^(?<path>.*):\\[(?<line>\\d+)(?:,(?<column>\\d+))?\\] \\[(?<rule>.*)\\] (?<description>.*\\s*\\(.*\\s*.*)$");
 
-    private static final Pattern PART_VIOLATION_PATTERN = Pattern.compile("^(.*):(\\[\\d+,\\d+\\]) (\\[.*\\])");
+    private static final Pattern PART_VIOLATION_PATTERN = Pattern.compile("^(.*):\\[(\\d+(?:,\\d+)?)\\] \\[(.*?)\\]");
     private static final Logger LOGGER = new ConsoleLogger(1, "console");
 
     private final ViolationConverter violationConverter;

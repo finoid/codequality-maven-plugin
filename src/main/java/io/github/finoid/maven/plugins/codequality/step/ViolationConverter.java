@@ -2,11 +2,11 @@ package io.github.finoid.maven.plugins.codequality.step;
 
 import com.puppycrawl.tools.checkstyle.api.AuditEvent;
 import com.puppycrawl.tools.checkstyle.api.SeverityLevel;
-import lombok.SneakyThrows;
-import org.apache.maven.project.MavenProject;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
+import lombok.SneakyThrows;
+import org.apache.maven.project.MavenProject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,6 +51,8 @@ public class ViolationConverter {
         final int lineNumber = Integer.parseInt(violationMatcher.group("line"));
         final String rule = violationMatcher.group("rule");
 
+        final int column = columnNumber == null ? 0 : Integer.parseInt(columnNumber);
+
         return new Violation(
             String.format("%s: %s", "ErrorProne", description),
             fingerprint(repositoryRoot, absoluteFilePath, description, lineNumber, columnNumber),
@@ -58,7 +60,7 @@ public class ViolationConverter {
             relativePath(repositoryRoot, absoluteFilePath),
             absoluteFilePath.replace("\\", "/"),  // Windows compatibility
             lineNumber,
-            Integer.valueOf(columnNumber),
+            column,
             rule);
     }
 
