@@ -8,8 +8,9 @@ import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.report.gitlab.GitLabViolation;
 import io.github.finoid.maven.plugins.codequality.step.StepResults;
+import io.github.finoid.maven.plugins.codequality.util.ProjectUtils;
+import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.component.annotations.Component;
 
 import javax.inject.Inject;
@@ -33,15 +34,15 @@ import java.util.Locale;
 @Component(role = ViolationReporter.class, hint = "gitlab-file")
 public class GitLabFileViolationReporter implements ViolationReporter {
     private final ObjectMapper objectMapper;
-    private final MavenProject project;
+    private final MavenSession mavenSession;
 
     @Inject
-    public GitLabFileViolationReporter(final MavenProject project) {
-        this(project, defaultObjectMapper());
+    public GitLabFileViolationReporter(final MavenSession mavenSession) {
+        this(mavenSession, defaultObjectMapper());
     }
 
-    public GitLabFileViolationReporter(final MavenProject project, final ObjectMapper objectMapper) {
-        this.project = project;
+    public GitLabFileViolationReporter(final MavenSession mavenSession, final ObjectMapper objectMapper) {
+        this.mavenSession = mavenSession;
         this.objectMapper = objectMapper;
     }
 
@@ -51,7 +52,7 @@ public class GitLabFileViolationReporter implements ViolationReporter {
             .map(GitLabFileViolationReporter::gitLabViolationOf)
             .toList();
 
-        final String targetOutputFile = project.getBuild().getDirectory() + "/gitlab-violations.json";
+        final String targetOutputFile = ProjectUtils.getProjectBuildDirectory(mavenSession) + "/gitlab-violations.json";
 
         try (final OutputStream outputStream = new FileOutputStream(targetOutputFile)) {
             objectMapper.writeValue(outputStream, gitLabViolations);

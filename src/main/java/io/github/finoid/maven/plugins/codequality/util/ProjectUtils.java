@@ -8,6 +8,7 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
+import org.jspecify.annotations.Nullable;
 
 import java.io.File;
 import java.util.List;
@@ -83,7 +84,6 @@ public final class ProjectUtils {
             .equalsIgnoreCase(mavenSession.getCurrentProject().getArtifactId());
     }
 
-
     /**
      * Resolves the configured step log level from the Maven plugin confiﬁguration or falls back
      * to a provided default if the configuration is missing or incomplete.
@@ -111,5 +111,21 @@ public final class ProjectUtils {
         }
 
         return LogLevel.ofStringOrThrow(stepLogLevel.getValue().trim());
+    }
+
+    @Nullable
+    public static String getProjectBuildDirectory(final MavenSession mavenSession) {
+        MavenProject project = mavenSession.getCurrentProject();
+
+        while (true) {
+            MavenProject parent = project.getParent();
+
+            if (parent == null || parent.getBasedir() == null) {
+                return project.getBuild()
+                    .getDirectory();
+            }
+
+            project = parent;
+        }
     }
 }
