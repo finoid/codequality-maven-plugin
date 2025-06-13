@@ -47,7 +47,7 @@ class StepResultsUnitTest extends UnitTest {
     void givenNonPermissiveViolation_whenGetNonPermissiveViolationsAndHigherSeverity_thenReturnsNoViolation() {
         var nonPermissiveProjectStepResults = ProjectStepResultsFaker.projectStepResults()
             .withStepResult(StepResultFaker.stepResultFaker()
-                .withIsPermissive(true)
+                .withIsPermissive(false)
                 .withViolation(ViolationFaker.violation()
                     .withSeverity(Severity.INFO)
                     .create())
