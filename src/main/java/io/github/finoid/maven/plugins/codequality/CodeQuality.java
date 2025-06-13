@@ -133,7 +133,7 @@ public class CodeQuality extends AbstractMojo {
         final List<Violation> nonPermissiveViolations = stepResults.getNonPermissiveViolations(Severity.MINOR);
 
         if (!nonPermissiveViolations.isEmpty()) {
-            throw new SeverityThresholdException("Severity threshold as been exceeded.");
+            throw new SeverityThresholdException("Severity threshold has been exceeded.");
         }
     }
 }
