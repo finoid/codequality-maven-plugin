@@ -16,4 +16,13 @@ class PropertyUtilsUnitTest extends UnitTest {
 
         Assertions.assertEquals("someValue", result);
     }
+
+    @Test
+    void givenKeyMissing_whenValueOrFallback_thenReturnsFallback() {
+        var properties = new Properties();
+
+        var result = PropertyUtils.valueOrFallback(properties, "missing.key", "fallback");
+
+        Assertions.assertEquals("fallback", result);
+    }
 }
