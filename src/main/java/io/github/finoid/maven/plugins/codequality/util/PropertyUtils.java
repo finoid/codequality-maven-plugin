@@ -8,8 +8,8 @@ import java.util.Properties;
 public class PropertyUtils {
 
     public static String valueOrFallback(final Properties properties, final String property, final String fallback) {
-        if (properties.containsValue(property)) {
-            return fallback;
+        if (properties.containsKey(property)) {
+            return properties.getProperty(property);
         }
 
         return properties.getProperty(property, fallback);
