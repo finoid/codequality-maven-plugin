@@ -63,7 +63,7 @@ public final class Precondition {
 
     /**
      * Checks if the provided subject is not blank. If it is blank, a IllegalArgumentException is thrown with the message
-     * provided by the messageSupplier.
+     * provided by the message.
      *
      * @param subject the subject to check for blank
      * @param message the exception message.
