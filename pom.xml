@@ -45,7 +45,7 @@
         <maven-plugin-annotations.version>3.13.1</maven-plugin-annotations.version>
         <maven-plugin-plugin.version>3.13.1</maven-plugin-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
-        <maven.version>3.9.9</maven.version>
+        <maven.version>3.9.10</maven.version>
         <mojo-executor.version>2.4.1</mojo-executor.version>
         <plexus-component-annotations.version>2.1.0</plexus-component-annotations.version>
         <plexus-utils.version>3.3.0</plexus-utils.version>
