@@ -1,13 +1,13 @@
 io.github.finoid.maven.plugins.codequality.step.ViolationConverterUnitTest.givenValidLogEntryAndMatcher_whenOfAuditEvent_thenExpectedViolation=[
   {
-    "columnNumber" : 92,
-    "description" : "Checkstyle: Descriptive violation XXHGp",
-    "fingerprint" : "1519134c37719e34505f3139ae241f2a66399185fa59172304f1d47eed4c4402",
+    "columnNumber" : 14,
+    "description" : "Checkstyle: Descriptive violation siTgN",
+    "fingerprint" : "2ada6236b7b78f6b4b14e0f6eedd625e489bfb37af8525e055165f79bf6cd1b7",
     "fullPath" : "***MASKED***",
-    "line" : 51,
+    "line" : 54,
     "relativePath" : "src/main/java/io/github/finoid/maven/plugins/codequality/step/CheckerFrameworkStep.java",
-    "rule" : "wrkS0",
-    "severity" : "MAJOR"
+    "rule" : "LX8lv",
+    "severity" : "INFO"
   }
 ]
 
