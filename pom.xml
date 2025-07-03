@@ -59,7 +59,7 @@
         <java-snapshot-testing-junit5.version>4.0.8</java-snapshot-testing-junit5.version>
         <maven-shared-utils.version>3.4.2</maven-shared-utils.version>
         <maven-verifier.version>1.8.0</maven-verifier.version>
-        <junit-jupiter.version>5.12.2</junit-jupiter.version>
+        <junit-jupiter.version>5.13.2</junit-jupiter.version>
         <mockito-junit-jupiter.version>5.18.0</mockito-junit-jupiter.version>
         <datafaker.version>2.4.3</datafaker.version>
 
