@@ -55,7 +55,7 @@
         <code-style.version>0.11.0</code-style.version>
 
         <!-- Test -->
-        <commons-io.version>2.16.1</commons-io.version>
+        <commons-io.version>2.19.0</commons-io.version>
         <java-snapshot-testing-junit5.version>4.0.8</java-snapshot-testing-junit5.version>
         <maven-shared-utils.version>3.4.2</maven-shared-utils.version>
         <maven-verifier.version>1.8.0</maven-verifier.version>
