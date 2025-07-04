@@ -12,7 +12,8 @@
 
     <groupId>io.github.finoid</groupId>
     <artifactId>codequality-maven-plugin</artifactId>
-    <version>main</version>
+    <!-- This version id is overridden on deploy, so this number is only applicable for local usage -->
+    <version>0.10.0</version>
     <name>finoid-codequality-maven-plugin</name>
     <description>A maven plugin that offers an integrated solution for enforcing code quality standards in your project.
         It supports tools such as Checkstyle, Error Prone, NullAway, and SpotBugs, enabling automatic analysis of your
@@ -29,6 +30,7 @@
 
         <checkstyle.version>10.26.1</checkstyle.version>
         <checker-qual.version>3.49.5</checker-qual.version>
+        <commons-codec.version>1.15</commons-codec.version>
         <commons-lang3.version>3.17.0</commons-lang3.version>
         <doxia.version>1.12.0</doxia.version>
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
@@ -83,6 +85,11 @@
     <dependencyManagement>
         <dependencies>
             <!-- Force specific versions of conflicting dependencies -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons-codec.version}</version>
+            </dependency>
             <dependency>
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-component-annotations</artifactId>
@@ -161,6 +168,13 @@
             <groupId>com.puppycrawl.tools</groupId>
             <artifactId>checkstyle</artifactId>
             <version>${checkstyle.version}</version>
+            <exclusions>
+                <!-- Excluded due to issues with maven-enforcer banDuplicateClasses rule, due to shadowed classes -->
+                <exclusion>
+                    <groupId>org.apache.maven.doxia</groupId>
+                    <artifactId>doxia-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
@@ -212,6 +226,10 @@
                 <exclusion>
                     <groupId>org.apache.maven.doxia</groupId>
                     <artifactId>doxia-integration-tools</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.codehaus.plexus</groupId>
+                    <artifactId>plexus-container-default</artifactId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -354,6 +372,37 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>enforce-versions</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <configuration>
+                            <rules>
+                                <!-- Override rules: we cannot ban commons-logging:commons-logging as it is an integral part of some Maven plugin dependencies -->
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>log4j:log4j</exclude>
+                                        <!-- Ban vulnerable versions -->
+                                        <exclude>log4j:log4j:[,2.15.0)</exclude>
+                                    </excludes>
+                                </bannedDependencies>
+                                <banDuplicateClasses>
+                                    <findAllDuplicates>true</findAllDuplicates>
+                                    <ignoreClasses>
+                                        <ignoreClass>module-info</ignoreClass>
+                                    </ignoreClasses>
+                                    <ignoreWhenIdentical>true</ignoreWhenIdentical>
+                                </banDuplicateClasses>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.eclipse.sisu</groupId>
                 <artifactId>sisu-maven-plugin</artifactId>
