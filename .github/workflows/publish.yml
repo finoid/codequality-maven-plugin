@@ -26,9 +26,18 @@ jobs:
           server-password: OSSRH_PASSWORD
           gpg-private-key: ${{ secrets.MAVEN_GPG_PRIVATE_KEY }}
 
+      # Set reproducible build timestamp
+      - name: Set build timestamp
+        run: |
+          # Use the commit timestamp for reproducibility
+          COMMIT_TIMESTAMP=$(git log -1 --format=%ct)
+          BUILD_TIMESTAMP=$(date -u -d @${COMMIT_TIMESTAMP} +"%Y-%m-%dT%H:%M:%SZ")
+          echo "BUILD_TIMESTAMP=$BUILD_TIMESTAMP" >> $GITHUB_ENV
+          echo "Setting build timestamp to: $BUILD_TIMESTAMP"
+
       - name: Build and Test
-        run: mvn clean verify --batch-mode
-      
+        run: mvn clean verify --batch-mode -Dproject.build.outputTimestamp="${BUILD_TIMESTAMP}"
+
       - name: Determine version from tag
         id: version
         run: |
@@ -46,8 +55,15 @@ jobs:
         run: mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
 
       - name: Publish to Maven Central
-        run: mvn deploy --batch-mode
+        run: mvn deploy --batch-mode -Dproject.build.outputTimestamp="${BUILD_TIMESTAMP}"
         env:
           OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
           OSSRH_PASSWORD: ${{ secrets.OSSRH_PASSWORD }}
           MAVEN_GPG_PASSPHRASE: ${{ secrets.MAVEN_GPG_PASSPHRASE }}
+
+      # Verify reproducibility
+      - name: Verify reproducible build
+        run: |
+          echo "Verifying build reproducibility..."
+          mvn clean verify -Dproject.build.outputTimestamp="${BUILD_TIMESTAMP}"
+          mvn artifact:compare -Dproject.build.outputTimestamp="${BUILD_TIMESTAMP}"
