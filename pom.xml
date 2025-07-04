@@ -42,7 +42,7 @@
         <junit-jupiter-api.version>5.11.4</junit-jupiter-api.version>
         <jspecify.version>1.0.0</jspecify.version>
         <lombok.version>1.18.38</lombok.version>
-        <maven-checkstyle-plugin.version>3.4.0</maven-checkstyle-plugin.version>
+        <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
         <maven-plugin-annotations.version>3.15.1</maven-plugin-annotations.version>
         <maven-plugin-plugin.version>3.15.1</maven-plugin-plugin.version>
@@ -51,6 +51,7 @@
         <mojo-executor.version>2.4.1</mojo-executor.version>
         <plexus-component-annotations.version>2.2.0</plexus-component-annotations.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
+        <plexus-xml.version>3.0.1</plexus-xml.version>
         <sisu-maven-plugin.version>0.3.5</sisu-maven-plugin.version>
 
         <!-- Internal dependencies -->
@@ -99,6 +100,11 @@
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
                 <version>${plexus-utils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-xml</artifactId>
+                <version>${plexus-xml.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
