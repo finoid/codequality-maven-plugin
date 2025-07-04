@@ -51,6 +51,7 @@
         <mojo-executor.version>2.4.1</mojo-executor.version>
         <plexus-component-annotations.version>2.2.0</plexus-component-annotations.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
+        <plexus-xml.version>3.0.1</plexus-xml.version>
         <sisu-maven-plugin.version>0.3.5</sisu-maven-plugin.version>
 
         <!-- Internal dependencies -->
@@ -99,6 +100,11 @@
                 <groupId>org.codehaus.plexus</groupId>
                 <artifactId>plexus-utils</artifactId>
                 <version>${plexus-utils.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.plexus</groupId>
+                <artifactId>plexus-xml</artifactId>
+                <version>${plexus-xml.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
