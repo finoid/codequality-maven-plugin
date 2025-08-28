@@ -6,7 +6,7 @@ io.github.finoid.maven.plugins.codequality.step.ViolationConverterUnitTest.given
     "fullPath" : "***MASKED***",
     "line" : 54,
     "relativePath" : "src/main/java/io/github/finoid/maven/plugins/codequality/step/CheckerFrameworkStep.java",
-    "rule" : "LX8lv",
+    "rule" : "LX8lv - Violation",
     "severity" : "INFO"
   }
 ]

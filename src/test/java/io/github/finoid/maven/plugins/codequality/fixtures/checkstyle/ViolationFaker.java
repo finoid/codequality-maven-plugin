@@ -13,6 +13,7 @@ public class ViolationFaker implements Faker<Violation> {
     private final String key;
     private final SeverityLevel severityLevel;
     private final String message;
+    private final Class<?> sourceClass;
 
     private final RandomGenerator randomGenerator;
 
@@ -24,6 +25,7 @@ public class ViolationFaker implements Faker<Violation> {
         this.key = randomGenerator.randomAlphanumeric(5);
         this.severityLevel = randomGenerator.randomEnum(SeverityLevel.class);
         this.message = "Descriptive violation " + randomGenerator.randomAlphanumeric(5);
+        this.sourceClass = Violation.class;
     }
 
     @Override
@@ -36,7 +38,7 @@ public class ViolationFaker implements Faker<Violation> {
             new Object[] {},
             severityLevel,
             "",
-            null,
+            sourceClass,
             message
         );
     }

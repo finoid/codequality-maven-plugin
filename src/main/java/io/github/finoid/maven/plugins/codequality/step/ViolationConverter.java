@@ -38,7 +38,7 @@ public class ViolationConverter {
             auditEvent.getFileName().replace("\\", "/"),  // Windows compatibility
             lineNumber(auditEvent),
             auditEvent.getColumn(),
-            auditEvent.getViolation().getKey()
+            auditEvent.getViolation().getKey() + " - " + sourceName(auditEvent)
         );
     }
 
@@ -126,6 +126,16 @@ public class ViolationConverter {
             .relativize(absolutePath)
             .toString()
             .replace("\\", "/"); // Windows compatibility
+    }
+
+    private static String sourceName(final AuditEvent auditEvent) {
+        String sourceName = auditEvent.getSourceName();
+
+        if (sourceName.endsWith("Check")) {
+            sourceName = sourceName.substring(0, sourceName.length() - 5);
+        }
+
+        return sourceName.substring(sourceName.lastIndexOf(".") + 1);
     }
 
     private static int lineNumber(final AuditEvent auditEvent) {
