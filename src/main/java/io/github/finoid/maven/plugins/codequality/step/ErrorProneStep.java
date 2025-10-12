@@ -11,6 +11,7 @@ import io.github.finoid.maven.plugins.codequality.util.MojoUtils.ElementUtils;
 import io.github.finoid.maven.plugins.codequality.util.MojoUtils.PluginUtils;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import io.github.finoid.maven.plugins.codequality.util.PropertyUtils;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -24,8 +25,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
 import static org.twdata.maven.mojoexecutor.MojoExecutor.element;
@@ -40,13 +44,13 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.goal;
 public class ErrorProneStep implements Step<ErrorProneConfiguration> {
     @SuppressWarnings("InlineFormatString")
     private static final String ERROR_PRONE_FLAGS_TEMPLATE = "-Xplugin:ErrorProne "
-                                                             + "-XepAllErrorsAsWarnings "
-                                                             + "-XepDisableWarningsInGeneratedCode "
-                                                             + "-Xep:MissingSummary:OFF " // TODO (nw) should be configurable
-                                                             + "-Xep:EqualsGetClass:OFF "
-                                                             + "-Xep:JavaTimeDefaultTimeZone:OFF "
-                                                             + "-XepOpt:NullAway:AnnotatedPackages=%s "
-                                                             + "-XepExcludedPaths:%s"; // The maven-compiler-plugin does not like text block
+        + "-XepAllErrorsAsWarnings "
+        + "-XepDisableWarningsInGeneratedCode "
+        + "-Xep:MissingSummary:OFF " // TODO (nw) should be configurable
+        + "-Xep:EqualsGetClass:OFF "
+        + "-Xep:JavaTimeDefaultTimeZone:OFF "
+        + "-XepOpt:NullAway:AnnotatedPackages=%s "
+        + "-XepExcludedPaths:%s"; // The maven-compiler-plugin does not like text block
 
     private final MavenProject project;
     private final MavenSession mavenSession;
@@ -109,7 +113,7 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
                     element(MojoExecutor.name("source"), javaVersion),
                     element(MojoExecutor.name("target"), javaVersion),
                     element(MojoExecutor.name("release"), javaVersion),
-                    element("outputDirectory", project.getBuild().getDirectory() + "/error-prone-classes"),
+                    element("outputDirectory", currentProject.getBuild().getDirectory() + "/error-prone-classes"),
                     element(MojoExecutor.name("showWarnings"), "true"),
                     element(MojoExecutor.name("compilerArgs"), elementsOfCompilerArgs(stepConfiguration)
                         .toArray(MojoExecutor.Element[]::new)),
@@ -132,34 +136,7 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
     }
 
     private List<MojoExecutor.Element> elementsOfCompilerArgs(final ErrorProneConfiguration errorProneConfiguration) {
-        final List<MojoExecutor.Element> compilerArgs = errorProneConfiguration.getCompilerArgs().stream()
-            .map(compilerArg -> element(MojoExecutor.name("arg"), compilerArg))
-            .collect(CollectorUtils.toMutableList());
-
-        // Due to JEP 396: Strongly Encapsulate JDK Internals by Default - See https://errorprone.info/docs/installation
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"));
-
-        // The compiler processes all source files together in a single compilation unit
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-XDcompilePolicy=simple"));
-
-        // The -processing suppress "No processor claimed any of these annotations"
-        // Suppress warnings related to JPMS due to compatibility issues with lombok
-        compilerArgs.add(element(MojoExecutor.name("arg"),
-            "-Xlint:all,-serial,-processing,-requires-transitive-automatic,-missing-explicit-ctor,-exports,-requires-automatic"));
-
-        compilerArgs.add(element(MojoExecutor.name("arg"), String.format(ERROR_PRONE_FLAGS_TEMPLATE, errorProneConfiguration.getAnnotatedPackages(),
-            errorProneConfiguration.getExcludedPaths())));
-
-        return compilerArgs;
+        return CompilerArgsComposer.compose(errorProneConfiguration, mavenSession);
     }
 
     private List<MojoExecutor.Element> elementsOfAnnotationProcessorPaths(
@@ -207,5 +184,97 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
 
     private static String targetOutputFilePath(final String targetDirectory, final String targetOutputFilename) {
         return targetDirectory + "/" + targetOutputFilename;
+    }
+
+    private static class CompilerArgsComposer {
+        private static final String ERROR_PRONE_CLASSES_DIR = "error-prone-classes";
+
+        // JEP 396: Strongly encapsulate JDK internals (see Error Prone docs)
+        private static final List<String> ERROR_PRONE_EXPORTS = List.of(
+            "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+        );
+
+        private static final List<String> ERROR_PRONE_OPENS = List.of(
+            "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
+        );
+
+        public static List<MojoExecutor.Element> compose(final ErrorProneConfiguration errorProneConfiguration, final MavenSession mavenSession) {
+            final List<MojoExecutor.Element> args = new ArrayList<>();
+
+            // caller-provided compiler args (first to allow later overrides to win if needed)
+            for (String a : errorProneConfiguration.getCompilerArgs()) {
+                args.add(arg(a));
+            }
+
+            // Due to JEP 396: Strongly Encapsulate JDK Internals by Default - See https://errorprone.info/docs/installation
+            ERROR_PRONE_EXPORTS.forEach(f -> args.add(arg("-J" + f)));
+            ERROR_PRONE_OPENS.forEach(f -> args.add(arg("-J" + f)));
+
+            // Classpath (ensure latest reactor outputs)
+            addClassPathArgs(args, mavenSession);
+
+            // Single-compilation-unit policy for javac
+            args.add(arg("-XDcompilePolicy=simple"));
+
+            // Lint config (suppress specific warnings; lombok/JPMS compatibility)
+            args.add(arg("-Xlint:all,-serial,-processing,-requires-transitive-automatic,-missing-explicit-ctor,-exports,-requires-automatic"));
+
+            // Error Prone configuration flags
+            args.add(arg(String.format(
+                ERROR_PRONE_FLAGS_TEMPLATE,
+                errorProneConfiguration.getAnnotatedPackages(),
+                errorProneConfiguration.getExcludedPaths()
+            )));
+
+            return args;
+        }
+
+        private static void addClassPathArgs(final List<MojoExecutor.Element> args, final MavenSession session) {
+            final MavenProject current = session.getCurrentProject();
+
+            final List<String> rawClasspath;
+            try {
+                // includes reactor target/classes
+                rawClasspath = new ArrayList<>(current.getCompileClasspathElements());
+            } catch (final DependencyResolutionRequiredException e) {
+                throw new CodeQualityException("Failed to resolve compile classpath", e);
+            }
+
+            final List<MavenProject> allProjects = session.getAllProjects();
+
+            // Replace classpath where entries referencing reactor artifacts
+            // are swapped for their <buildDirectory>/error-prone-classes
+            for (final ListIterator<String> it = rawClasspath.listIterator(); it.hasNext(); ) {
+                final String entry = it.next();
+
+                for (final MavenProject mavenProject : allProjects) {
+                    final String finalName = (mavenProject.getBuild() != null) ? mavenProject.getBuild().getFinalName() : null;
+
+                    if (finalName != null && entry.contains(finalName)) {
+                        final String replacement = Paths.get(mavenProject.getBuild().getDirectory(), ERROR_PRONE_CLASSES_DIR).toString();
+                        it.set(replacement);
+                        break;
+                    }
+                }
+            }
+
+            final String classpath = String.join(File.pathSeparator, rawClasspath);
+
+            // Because fork=true, we can override the classpath passed to external javac
+            args.add(arg("-cp"));
+            args.add(arg(classpath));
+        }
+
+        private static MojoExecutor.Element arg(final String value) {
+            return element(MojoExecutor.name("arg"), value);
+        }
     }
 }

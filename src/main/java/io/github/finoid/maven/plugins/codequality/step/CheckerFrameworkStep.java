@@ -12,6 +12,7 @@ import io.github.finoid.maven.plugins.codequality.util.MojoUtils.PluginUtils;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import io.github.finoid.maven.plugins.codequality.util.ProjectUtils;
 import io.github.finoid.maven.plugins.codequality.util.PropertyUtils;
+import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
@@ -25,8 +26,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Set;
 
 import static org.twdata.maven.mojoexecutor.MojoExecutor.configuration;
@@ -99,13 +103,12 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
         final PluginDescriptor descriptor =
             PluginUtils.pluginDescriptor("org.apache.maven.plugins", "maven-compiler-plugin", codeQualityConfiguration.getVersions().getMavenCompiler());
 
+        final String javaVersion = PropertyUtils.valueOrFallback(project.getProperties(), "java.version", "21");
+
         final MavenProject currentProject = mavenSession.getCurrentProject();
 
         final File currentProjectArtifactFile = currentProject.getArtifact()
             .getFile();
-
-        final String javaVersion = PropertyUtils.valueOrFallback(project.getProperties(), "java.version", "21");
-
         try {
             executeMojo(
                 PluginUtils.pluginOfDescriptor(descriptor),
@@ -115,7 +118,7 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
                     element("source", javaVersion),
                     element("target", javaVersion),
                     element("release", javaVersion),
-                    element("outputDirectory", project.getBuild().getDirectory() + "/checker-framework-classes"),
+                    element("outputDirectory", currentProject.getBuild().getDirectory() + "/checker-framework-classes"),
                     element("failOnError", "false"),
                     element("showWarnings", "true"),
                     element(MojoExecutor.name("compilerArgs"), elementsOfCompilerArgs(stepConfiguration)
@@ -142,38 +145,7 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
     }
 
     private List<MojoExecutor.Element> elementsOfCompilerArgs(final CheckerFrameworkConfiguration checkerFrameworkConfiguration) {
-        final List<MojoExecutor.Element> compilerArgs = checkerFrameworkConfiguration.getCompilerArgs().stream()
-            .map(compilerArg -> element(MojoExecutor.name("arg"), compilerArg))
-            .collect(CollectorUtils.toMutableList());
-
-        // Due to JEP 396: Strongly Encapsulate JDK Internals by Default - See https://checkerframework.org/manual/checker-framework-manual.pdf
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED"));
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"));
-
-        // Checker framework rules that are suppressed by default
-        compilerArgs.add(
-            element(MojoExecutor.name("arg"), "-AsuppressWarnings=type.anno.before.decl.anno,type.anno.before.modifier")); // TODO (nw) should be configurable
-
-        // Output errors as warnings
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-Awarns"));
-
-        // The -processing suppress "No processor claimed any of these annotations"
-        // Suppress warnings related to JPMS due to compatibility issues with lombok
-        compilerArgs.add(element(MojoExecutor.name("arg"),
-            "-Xlint:all,-serial,-processing,-requires-transitive-automatic,-missing-explicit-ctor,-exports,-requires-automatic"));
-
-        // Skip target directory which includes generated sources
-        compilerArgs.add(element(MojoExecutor.name("arg"), "-AskipFiles=/target/"));
-
-        return compilerArgs;
+        return CompilerArgsComposer.compose(checkerFrameworkConfiguration, mavenSession);
     }
 
     private List<MojoExecutor.Element> elementsOfAnnotationProcessorPaths(final MavenProject currentProject,
@@ -223,5 +195,99 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
 
     private static String targetOutputFilePath(final String targetDirectory, final String targetOutputFilename) {
         return targetDirectory + "/" + targetOutputFilename;
+    }
+
+    private static class CompilerArgsComposer {
+        private static final String CHECKER_FRAMEWORK_CLASSES_DIR = "checker-framework-classes";
+
+        // JEP 396: Strongly encapsulate JDK internals (see Checker Framework docs)
+        private static final List<String> CHECKER_FRAMEWORK_EXPORTS = List.of(
+            "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+            "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED"
+        );
+
+        private static final List<String> CHECKER_FRAMEWORK_OPENS = List.of(
+            "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+            "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
+        );
+
+        public static List<MojoExecutor.Element> compose(final CheckerFrameworkConfiguration checkerFrameworkConfiguration, final MavenSession mavenSession) {
+            final List<MojoExecutor.Element> args = new ArrayList<>();
+
+            // caller-provided compiler args (first to allow later overrides to win if needed)
+            for (String a : checkerFrameworkConfiguration.getCompilerArgs()) {
+                args.add(arg(a));
+            }
+
+            // Due to JEP 396: Strongly Encapsulate JDK Internals by Default - See https://errorprone.info/docs/installation
+            CHECKER_FRAMEWORK_EXPORTS.forEach(f -> args.add(arg("-J" + f)));
+            CHECKER_FRAMEWORK_OPENS.forEach(f -> args.add(arg("-J" + f)));
+
+            // Classpath (ensure latest reactor outputs)
+            addClassPathArgs(args, mavenSession);
+
+            // Checker framework rules that are suppressed by default
+            args.add(element(MojoExecutor.name("arg"),
+                "-AsuppressWarnings=type.anno.before.decl.anno,type.anno.before.modifier")); // TODO (nw) should be configurable
+
+            // Output errors as warnings
+            args.add(element(MojoExecutor.name("arg"), "-Awarns"));
+
+            // The -processing suppress "No processor claimed any of these annotations"
+            // Suppress warnings related to JPMS due to compatibility issues with lombok
+            args.add(element(MojoExecutor.name("arg"),
+                "-Xlint:all,-serial,-processing,-requires-transitive-automatic,-missing-explicit-ctor,-exports,-requires-automatic"));
+
+            // Skip target directory which includes generated sources
+            args.add(element(MojoExecutor.name("arg"), "-AskipFiles=/target/"));
+
+            return args;
+        }
+
+        private static void addClassPathArgs(final List<MojoExecutor.Element> args, final MavenSession session) {
+            final MavenProject current = session.getCurrentProject();
+
+            final List<String> rawClasspath;
+            try {
+                // includes reactor target/classes
+                rawClasspath = new ArrayList<>(current.getCompileClasspathElements());
+            } catch (final DependencyResolutionRequiredException e) {
+                throw new CodeQualityException("Failed to resolve compile classpath", e);
+            }
+
+            final List<MavenProject> allProjects = session.getAllProjects();
+
+            // Replace classpath where entries referencing reactor artifacts
+            // are swapped for their <buildDirectory>/error-prone-classes
+            for (final ListIterator<String> it = rawClasspath.listIterator(); it.hasNext(); ) {
+                final String entry = it.next();
+
+                for (final MavenProject mavenProject : allProjects) {
+                    final String finalName = (mavenProject.getBuild() != null) ? mavenProject.getBuild().getFinalName() : null;
+
+                    if (finalName != null && entry.contains(finalName)) {
+                        final String replacement = Paths.get(mavenProject.getBuild().getDirectory(), CHECKER_FRAMEWORK_CLASSES_DIR).toString();
+                        it.set(replacement);
+                        break;
+                    }
+                }
+            }
+
+            final String classpath = String.join(File.pathSeparator, rawClasspath);
+
+            // Because fork=true, we can override the classpath passed to external javac
+            args.add(arg("-cp"));
+            args.add(arg(classpath));
+        }
+
+        private static MojoExecutor.Element arg(final String value) {
+            return element(MojoExecutor.name("arg"), value);
+        }
     }
 }
