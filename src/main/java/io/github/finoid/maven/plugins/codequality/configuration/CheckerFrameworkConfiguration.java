@@ -29,7 +29,6 @@ public class CheckerFrameworkConfiguration implements Configuration {
     private Set<String> checkers = Set.of(
         "org.checkerframework.checker.regex.RegexChecker",
         "org.checkerframework.checker.formatter.FormatterChecker",
-        "org.checkerframework.checker.signature.SignatureChecker",
         "org.checkerframework.checker.tainting.TaintingChecker",
         "org.checkerframework.checker.calledmethods.CalledMethodsChecker",
         "org.checkerframework.checker.index.IndexChecker",
