@@ -65,7 +65,7 @@
         <maven-verifier.version>1.8.0</maven-verifier.version>
         <junit-jupiter.version>6.0.0</junit-jupiter.version>
         <mockito-junit-jupiter.version>5.20.0</mockito-junit-jupiter.version>
-        <datafaker.version>2.5.1</datafaker.version>
+        <datafaker.version>2.5.2</datafaker.version>
 
         <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
