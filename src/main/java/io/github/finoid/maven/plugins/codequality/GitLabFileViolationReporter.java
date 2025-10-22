@@ -66,7 +66,7 @@ public class GitLabFileViolationReporter implements ViolationReporter {
             violation.getDescription(),
             violation.getFingerprint(),
             violation.getSeverity().name().toLowerCase(Locale.ENGLISH),
-            new GitLabViolation.Location(violation.getFullPath(), new GitLabViolation.Lines(violation.getLine())));
+            new GitLabViolation.Location(violation.getRelativePath(), new GitLabViolation.Lines(violation.getLine())));
     }
 
     private static ObjectMapper defaultObjectMapper() {
