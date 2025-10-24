@@ -46,7 +46,7 @@
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
         <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
-        <maven-plugin-plugin.version>3.15.1</maven-plugin-plugin.version>
+        <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven.version>3.9.11</maven.version>
         <mojo-executor.version>2.4.1</mojo-executor.version>
