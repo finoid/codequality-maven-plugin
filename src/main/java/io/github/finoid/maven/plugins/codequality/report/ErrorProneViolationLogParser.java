@@ -26,6 +26,8 @@ public class ErrorProneViolationLogParser implements ViolationLogParser {
 
     private static final Pattern PART_VIOLATION_PATTERN = Pattern.compile("^(.*):\\[(\\d+(?:,\\d+)?)\\] \\[(.*?)\\]");
     private static final Logger LOGGER = new ConsoleLogger(1, "console");
+    private static final String THIRD_LINE_PREFIX = "  Did you mean";
+    private static final int READ_AHEAD_LIMIT = 8 * 1024;
 
     private final ViolationConverter violationConverter;
 
@@ -61,8 +63,19 @@ public class ErrorProneViolationLogParser implements ViolationLogParser {
 
         errorProneViolationBuffer
             .append(currentLine)
-            .append(reader.readLine())
             .append(reader.readLine());
+
+        reader.mark(READ_AHEAD_LIMIT);
+
+        String peakAhead = reader.readLine();
+
+        // optional third line: typically "  Did you mean ..."
+        if (peakAhead.startsWith(THIRD_LINE_PREFIX)) {
+            errorProneViolationBuffer.append(peakAhead);
+        } else {
+            // Not a valid third line, rewind so the outer loop will process it
+            reader.reset();
+        }
 
         final Matcher violationMatcher = VIOLATION_PATTERN.matcher(errorProneViolationBuffer.toString());
         if (!violationMatcher.find()) {

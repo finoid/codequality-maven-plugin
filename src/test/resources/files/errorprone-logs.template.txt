@@ -1,5 +1,13 @@
 Recompiling the module because of [1mchanged source code[m.
-[path] bad path element "%1$s/finoid-otel/otel-core/target/classes": no such file or directory
-%1$s/src/main/java/io/github/finoid/library/otel/OpenTelemetryUtils.java:[24,24] [StringCaseLocaleUsage] Specify a `Locale` when calling `String#to{Lower,Upper}Case`. (Note: there are multiple suggested fixes; the third may be most appropriate if you're dealing with ASCII Strings.)
-    (see https://errorprone.info/bugpattern/StringCaseLocaleUsage)
-  Did you mean '.toLowerCase(Locale.ROOT);' or '.toLowerCase(Locale.getDefault());' or 'return Ascii.toLowerCase(currentSpan.getSpanContext()'?
+[path] bad path element "%1$s/project/target/classes": no such file or directory
+%1$s/project/src/main/java/Main.java:[11,22] [NullAway] passing @Nullable parameter 'null' where @NonNull is required
+    (see http://t.uber.com/nullaway )
+%1$s/project/src/main/java/Main.java:[19,20] [MissingOverride] hello implements method in A; expected @Override
+    (see https://errorprone.info/bugpattern/MissingOverride)
+  Did you mean '@Override public void hello(String name) {'?
+%1$s/project/src/main/java/Main.java:[26,25] [ArrayEquals] Reference equality used to compare arrays
+    (see https://errorprone.info/bugpattern/ArrayEquals)
+  Did you mean 'Arrays.equals(array1, array2);'?
+%1$s/project/src/main/java/Main.java:[26,25] [ReturnValueIgnored] Return value of 'equals' must be used
+    (see https://errorprone.info/bugpattern/ReturnValueIgnored)
+  Did you mean 'verify(array1.equals(array2));' or 'var unused = array1.equals(array2);' or to remove this line?

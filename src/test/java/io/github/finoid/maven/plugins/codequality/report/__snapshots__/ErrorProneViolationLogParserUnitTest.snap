@@ -1,13 +1,43 @@
 io.github.finoid.maven.plugins.codequality.report.ErrorProneViolationLogParserUnitTest.givenValidLogFile_whenParse_thenExpectedViolations=[
   [
     {
-      "columnNumber" : 24,
-      "description" : "ErrorProne: Specify a `Locale` when calling `String#to{Lower,Upper}Case`. (Note: there are multiple suggested fixes; the third may be most appropriate if you're dealing with ASCII Strings.)    (see https://errorprone.info/bugpattern/StringCaseLocaleUsage)  Did you mean '.toLowerCase(Locale.ROOT);' or '.toLowerCase(Locale.getDefault());' or 'return Ascii.toLowerCase(currentSpan.getSpanContext()'?",
-      "fingerprint" : "10542e731724aff6b495a26ed308eccebe18563fe10cf7aeca9320e5b6e70176",
+      "columnNumber" : 22,
+      "description" : "ErrorProne: passing @Nullable parameter 'null' where @NonNull is required    (see http://t.uber.com/nullaway )",
+      "fingerprint" : "a7fc3d99998ed9f4a3ab6676a707374a3b919dcca8b001586dd2382f1e552a3a",
       "fullPath" : "***MASKED***",
-      "line" : 24,
-      "relativePath" : "src/main/java/io/github/finoid/library/otel/OpenTelemetryUtils.java",
-      "rule" : "StringCaseLocaleUsage",
+      "line" : 11,
+      "relativePath" : "project/src/main/java/Main.java",
+      "rule" : "NullAway",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 20,
+      "description" : "ErrorProne: hello implements method in A; expected @Override    (see https://errorprone.info/bugpattern/MissingOverride)  Did you mean '@Override public void hello(String name) {'?",
+      "fingerprint" : "cfe4bf0dc3844abe2090fd68ce95f5b6bd732835ec518031b484772582dd2e6a",
+      "fullPath" : "***MASKED***",
+      "line" : 19,
+      "relativePath" : "project/src/main/java/Main.java",
+      "rule" : "MissingOverride",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 25,
+      "description" : "ErrorProne: Reference equality used to compare arrays    (see https://errorprone.info/bugpattern/ArrayEquals)  Did you mean 'Arrays.equals(array1, array2);'?",
+      "fingerprint" : "4aee1bfb002812ad49906a33a4c90abe289bc21739adbf4aca3b7a2e97576051",
+      "fullPath" : "***MASKED***",
+      "line" : 26,
+      "relativePath" : "project/src/main/java/Main.java",
+      "rule" : "ArrayEquals",
+      "severity" : "MINOR"
+    },
+    {
+      "columnNumber" : 25,
+      "description" : "ErrorProne: Return value of 'equals' must be used    (see https://errorprone.info/bugpattern/ReturnValueIgnored)  Did you mean 'verify(array1.equals(array2));' or 'var unused = array1.equals(array2);' or to remove this line?",
+      "fingerprint" : "66b4cd118145131604f6cbd5dcc66ce46ce4f504b762f580e018b860b3b5ee93",
+      "fullPath" : "***MASKED***",
+      "line" : 26,
+      "relativePath" : "project/src/main/java/Main.java",
+      "rule" : "ReturnValueIgnored",
       "severity" : "MINOR"
     }
   ]

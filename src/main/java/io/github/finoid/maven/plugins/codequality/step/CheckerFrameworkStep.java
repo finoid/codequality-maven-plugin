@@ -119,7 +119,7 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
                     element("target", javaVersion),
                     element("release", javaVersion),
                     element("outputDirectory", currentProject.getBuild().getDirectory() + "/checker-framework-classes"),
-                    element("failOnError", "false"),
+                    element("failOnError", "true"),
                     element("showWarnings", "true"),
                     element(MojoExecutor.name("compilerArgs"), elementsOfCompilerArgs(stepConfiguration)
                         .toArray(MojoExecutor.Element[]::new)),
