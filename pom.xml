@@ -28,7 +28,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <checkstyle.version>12.1.1</checkstyle.version>
+        <checkstyle.version>12.1.2</checkstyle.version>
         <checker-qual.version>3.52.0</checker-qual.version>
         <commons-codec.version>1.20.0</commons-codec.version>
         <commons-lang3.version>3.19.0</commons-lang3.version>
