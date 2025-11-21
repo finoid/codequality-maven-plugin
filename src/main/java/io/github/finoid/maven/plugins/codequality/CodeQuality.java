@@ -37,6 +37,7 @@ public class CodeQuality extends AbstractMojo {
     private final CleanHandler cleanHandler;
     private final MavenSession mavenSession;
     private final StepResultsRepository stepResultsRepository;
+    private final DiffCoverageApplier diffCoverageApplier;
     private final List<ViolationReporter> violationReporters;
 
     @Parameter(alias = "codeQuality")
@@ -50,6 +51,7 @@ public class CodeQuality extends AbstractMojo {
         final CleanHandler cleanHandler,
         final MavenSession mavenSession,
         final StepResultsRepository stepResultsRepository,
+        final DiffCoverageApplier diffCoverageApplier,
         final List<ViolationReporter> violationReporters,
         final CodeQualityConfiguration codeQualityConfiguration
     ) {
@@ -59,6 +61,7 @@ public class CodeQuality extends AbstractMojo {
         this.cleanHandler = Precondition.nonNull(cleanHandler, "CleanHandler shouldn't be null");
         this.mavenSession = Precondition.nonNull(mavenSession, "MavenSession shouldn't be null");
         this.stepResultsRepository = Precondition.nonNull(stepResultsRepository, "StepResultsRepository shouldn't be null");
+        this.diffCoverageApplier = Precondition.nonNull(diffCoverageApplier, "DiffCoverageApplier shouldn't be null");
         this.violationReporters = Precondition.nonNull(violationReporters, "ViolationResultLogOutput shouldn't be null");
         this.codeQualityConfiguration = Precondition.nonNull(codeQualityConfiguration, "CodeQualityConfiguration shouldn't be null");
     }
@@ -126,7 +129,7 @@ public class CodeQuality extends AbstractMojo {
 
     // TODO (nw) option to select which violation reports to apply
     private void violationReporting() {
-        final StepResults stepResults = stepResultsRepository.getAll();
+        final StepResults stepResults = diffCoverageApplier.apply(stepResultsRepository.getAll(), getLog());
 
         violationReporters.forEach(r -> r.report(getLog(), stepResults));
 
