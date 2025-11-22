@@ -71,6 +71,7 @@ public class ErrorProneViolationLogParser implements ViolationLogParser {
 
         // optional third line: typically "  Did you mean ..."
         if (peakAhead.startsWith(THIRD_LINE_PREFIX)) {
+            errorProneViolationBuffer.append(System.lineSeparator());
             errorProneViolationBuffer.append(peakAhead);
         } else {
             // Not a valid third line, rewind so the outer loop will process it

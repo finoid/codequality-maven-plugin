@@ -19,12 +19,14 @@ to detect style violations and potential bugs early in the development process.
 
 ## Reports
 
-The plugin supports reporting code quality violations to various outputs, such as the console or a JSON file. These reports can help developers identify and address issues early in the build process or integrate with external systems.
+The plugin supports reporting code quality violations to various outputs, such as the console or a JSON file. These
+reports can help developers identify and address issues early in the build process or integrate with external systems.
 
-| Reporter                          | Description                                                                                                                                                                                                |
-| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **`ConsoleViolationReporter`**    | Logs code quality violations to the Maven console using color-coded and linkable formatting for easy visibility during builds.                                                                             |
-| **`GitLabFileViolationReporter`** | Serializes violations into a JSON file formatted for GitLab's [Code Quality widget](https://docs.gitlab.com/ee/user/project/merge_requests/code_quality.html), enabling inline feedback in merge requests. |
+| Reporter                            | Description                                                                                                                                                                                                |
+|-------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **`ConsolePlainViolationReporter`** | Logs code quality violations to the Maven console using color-coded and linkable formatting for easy visibility during builds.                                                                             |
+| **`ConsoleTableViolationReporter`** | Logs code quality violations to the Maven console using tables for easy visibility during builds.                                                                                                          |
+| **`GitLabFileViolationReporter`**   | Serializes violations into a JSON file formatted for GitLab's [Code Quality widget](https://docs.gitlab.com/ee/user/project/merge_requests/code_quality.html), enabling inline feedback in merge requests. |
 
 ## Installation
 
@@ -35,12 +37,15 @@ You can use the Code Quality Maven Plugin in one of two ways:
 ```bash
 mvn io.github.finoid:codequality-maven-plugin:<latest>:code-quality
 ```
+
 Replace <latest> with the current version of the plugin.
 
 ### Add it to your pom.xml
+
 For continuous use across builds, include the plugin in your project’s pom.xml:
 
 ```xml
+
 <plugin>
     <groupId>io.github.finoid</groupId>
     <artifactId>codequality-maven-plugin</artifactId>
@@ -85,14 +90,14 @@ For continuous use across builds, include the plugin in your project’s pom.xml
 ### Checkstyle configuration
 
 | Parameter       | Description                                         | Default |
-| --------------- | --------------------------------------------------- | ------- |
+|-----------------|-----------------------------------------------------|---------|
 | `enabled`       | Whether the analyzer should be enabled or disabled. | `true`  |
 | `consoleOutput` | Whether the logs should be output to the console.   | `true`  |
 
 #### Execution Main
 
 | Parameter             | Description                                                                 | Default                            |
-| --------------------- | --------------------------------------------------------------------------- | ---------------------------------- |
+|-----------------------|-----------------------------------------------------------------------------|------------------------------------|
 | `enabled`             | Whether the analyzer should be enabled or disabled for `main`.              | `true`                             |
 | `includes`            | Specifies the names filter of the source files to be used for Checkstyle.   | `**/*.java`                        |
 | `resourceIncludes`    | Specifies the names filter of the resource files to be used for Checkstyle. | `**/*.properties`                  |
@@ -106,7 +111,7 @@ For continuous use across builds, include the plugin in your project’s pom.xml
 #### Execution Test
 
 | Parameter             | Description                                                                      | Default                                |
-| --------------------- | -------------------------------------------------------------------------------- | -------------------------------------- |
+|-----------------------|----------------------------------------------------------------------------------|----------------------------------------|
 | `enabled`             | Whether the analyzer should be enabled or disabled for `test`.                   | `true`                                 |
 | `includes`            | Specifies the names filter of the test source files to be used for Checkstyle.   | `**/*.java`                            |
 | `resourceIncludes`    | Specifies the names filter of the test resource files to be used for Checkstyle. | `**/*.properties`                      |
@@ -120,7 +125,7 @@ For continuous use across builds, include the plugin in your project’s pom.xml
 ### ErrorProne configuration
 
 | Parameter             | Description                                                                  | Default                          |
-| --------------------- | ---------------------------------------------------------------------------- | -------------------------------- |
+|-----------------------|------------------------------------------------------------------------------|----------------------------------|
 | `enabled`             | Whether the Error Prone analyzer should be enabled.                          | `false`                          |
 | `nullAwayEnabled`     | Whether the NullAway analyzer should be enabled.                             | `false`                          |
 | `permissive`          | Whether the execution should be permissive (not fail on violations).         | `true`                           |
@@ -133,7 +138,7 @@ For continuous use across builds, include the plugin in your project’s pom.xml
 ### CheckerFramework configuration
 
 | Parameter                   | Description                                                          | Default                                                     |
-| --------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------- |
+|-----------------------------|----------------------------------------------------------------------|-------------------------------------------------------------|
 | `enabled`                   | Whether the Checker Framework analyzer should be enabled.            | `false`                                                     |
 | `permissive`                | Whether the execution should be permissive (not fail on violations). | `true`                                                      |
 | `checkers`                  | The list of checkers to be run.                                      | See `CheckerFrameworkConfiguration` class in your codebase. |

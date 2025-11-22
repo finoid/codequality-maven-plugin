@@ -1,36 +1,32 @@
 package io.github.finoid.maven.plugins.codequality;
 
-import io.github.finoid.maven.plugins.codequality.log.ViolationLinkableConsoleLogger;
+import de.vandermeer.asciitable.AsciiTable;
+import de.vandermeer.asciitable.CWC_LongestLine;
+import de.vandermeer.asciithemes.TA_GridThemes;
+import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.step.StepResults;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.component.annotations.Component;
 
-import javax.inject.Inject;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * A console-based implementation of {@link ViolationReporter} that logs code quality violations
- * to the Maven console using color-coded and linkable formatting.
+ * A table console-based implementation of {@link ViolationReporter} that logs code quality violations
+ * to the Maven console.
  *
  * <p>Violations are categorized into permissive and non-permissive types, and output is formatted
- * accordingly using green (informational) or yellow (warnings) coloring, with contextual emoji symbols
- * to enhance visibility.
+ * accordingly using green (informational) or yellow (warnings) coloring.
  */
-@Component(role = ViolationReporter.class, hint = "console")
-public class ConsoleViolationReporter implements ViolationReporter {
+@Component(role = ViolationReporter.class, hint = "console-table")
+public class ConsoleTableViolationReporter implements ViolationReporter {
+    public static final String NAME = "CONSOLE_TABLE";
+
     private static final String GREEN = "\u001B[32m";
     private static final String YELLOW = "\u001B[33m";
     private static final String RESET = "\u001B[0m";
-
-    private final ViolationLinkableConsoleLogger violationLinkableConsoleLogger;
-
-    @Inject
-    public ConsoleViolationReporter(final ViolationLinkableConsoleLogger violationLinkableConsoleLogger) {
-        this.violationLinkableConsoleLogger = violationLinkableConsoleLogger;
-    }
 
     /**
      * Reports all violations of at least {@link Severity#MINOR} level by grouping them
@@ -49,6 +45,49 @@ public class ConsoleViolationReporter implements ViolationReporter {
         logViolationsForType(log, nonPermissiveViolations, PermissiveType.NON_PERMISSIVE);
     }
 
+    @Override
+    public String name() {
+        return NAME;
+    }
+
+    private String renderTable(final List<Violation> violations) {
+        final AsciiTable table = new AsciiTable();
+
+        // Add the header
+        table.addRule();
+        table.addRow("Tool", "Rule", "Description", "Path", "Line/Column number");
+        table.addRule();
+
+        // Add each individual violation as a row
+        violations.forEach(it -> {
+            table.setPadding(1);
+
+            table.addRow(
+                it.getTool(),
+                it.getRule(),
+                it.getDescription(),
+                it.getRelativePath(),
+                it.getLine() + ":" + it.getColumnNumber());
+            table.addRule();
+        });
+
+        table.setTextAlignment(TextAlignment.LEFT);
+        table.getContext().setGridTheme(TA_GridThemes.FULL);
+
+        final CWC_LongestLine cwc = new CWC_LongestLine();
+        table.getRenderer()
+            .setCWC(cwc);
+
+        // Override specific column width ratios (relative percentages)
+        cwc.add(10, 15)   // Type
+            .add(20, 20)  // Rule
+            .add(40, 60)  // Description!)
+            .add(25, 50)  // Path
+            .add(12, 20); // Column number
+
+        return table.render(200);
+    }
+
     private void logViolationsForType(final Log log, final List<Violation> violations, final PermissiveType permissiveType) {
         if (violations.isEmpty()) {
             log.info(String.format("✅ %s ##### No %s violations found ##### %s ✅ ", GREEN, permissiveType.displayName(), RESET));
@@ -64,7 +103,7 @@ public class ConsoleViolationReporter implements ViolationReporter {
 
         logWithLevel(log, permissiveType, (permissiveType == PermissiveType.NON_PERMISSIVE ? "⚠ " : "✅ ") + message);
 
-        violations.forEach(v -> logWithLevel(log, permissiveType, violationLinkableConsoleLogger.format(v)));
+        log.info(System.lineSeparator() + renderTable(violations));
     }
 
     private static void logWithLevel(final Log log, final PermissiveType permissiveType, final String message) {

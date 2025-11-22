@@ -30,16 +30,17 @@ public class ViolationConverter {
     public Violation ofAuditEvent(final AuditEvent auditEvent) {
         final File repositoryRoot = project.getBasedir();
 
-        return new Violation(
-            String.format("%s: %s", "Checkstyle", auditEvent.getMessage()),
-            fingerprint(repositoryRoot, auditEvent),
-            severity(auditEvent.getSeverityLevel()),
-            relativePath(repositoryRoot, auditEvent.getFileName()),
-            auditEvent.getFileName().replace("\\", "/"),  // Windows compatibility
-            lineNumber(auditEvent),
-            auditEvent.getColumn(),
-            auditEvent.getViolation().getKey() + " - " + sourceName(auditEvent)
-        );
+        return Violation.builder()
+            .tool("Checkstyle")
+            .description(String.format("%s: %s", "Checkstyle", auditEvent.getMessage()))
+            .fingerprint(fingerprint(repositoryRoot, auditEvent))
+            .severity(severity(auditEvent.getSeverityLevel()))
+            .relativePath(relativePath(repositoryRoot, auditEvent.getFileName()))
+            .fullPath(auditEvent.getFileName().replace("\\", "/")) // Windows compatibility
+            .line(lineNumber(auditEvent))
+            .columnNumber(auditEvent.getColumn())
+            .rule(auditEvent.getViolation().getKey() + " - " + sourceName(auditEvent))
+            .build();
     }
 
     public Violation ofErrorProneViolationMatcher(final Matcher violationMatcher) {
@@ -53,15 +54,17 @@ public class ViolationConverter {
 
         final int column = columnNumber == null ? 0 : Integer.parseInt(columnNumber);
 
-        return new Violation(
-            String.format("%s: %s", "ErrorProne", description),
-            fingerprint(repositoryRoot, absoluteFilePath, description, lineNumber, columnNumber),
-            Severity.MINOR,
-            relativePath(repositoryRoot, absoluteFilePath),
-            absoluteFilePath.replace("\\", "/"),  // Windows compatibility
-            lineNumber,
-            column,
-            rule);
+        return Violation.builder()
+            .tool("ErrorProne")
+            .description(String.format("%s: %s", "ErrorProne", description))
+            .fingerprint(fingerprint(repositoryRoot, absoluteFilePath, description, lineNumber, columnNumber))
+            .severity(Severity.MINOR)
+            .relativePath(relativePath(repositoryRoot, absoluteFilePath))
+            .fullPath(absoluteFilePath.replace("\\", "/")) // Windows compatibility
+            .line(lineNumber)
+            .columnNumber(column)
+            .rule(rule)
+            .build();
     }
 
     public Violation ofCheckerFrameworkViolationMatcher(final Matcher violationMatcher) {
@@ -73,15 +76,17 @@ public class ViolationConverter {
         final int lineNumber = Integer.parseInt(violationMatcher.group("line"));
         final String rule = violationMatcher.group("rule");
 
-        return new Violation(
-            String.format("%s: %s", "CheckerFramework", description),
-            fingerprint(repositoryRoot, absoluteFilePath, description, lineNumber, columnNumber),
-            Severity.MINOR,
-            relativePath(repositoryRoot, absoluteFilePath),
-            absoluteFilePath.replace("\\", "/"), // Windows compatibility
-            lineNumber,
-            Integer.valueOf(columnNumber),
-            rule);
+        return Violation.builder()
+            .tool("CheckerFramework")
+            .description(String.format("%s: %s", "CheckerFramework", description))
+            .fingerprint(fingerprint(repositoryRoot, absoluteFilePath, description, lineNumber, columnNumber))
+            .severity(Severity.MINOR)
+            .relativePath(relativePath(repositoryRoot, absoluteFilePath))
+            .fullPath(absoluteFilePath.replace("\\", "/")) // Windows compatibility
+            .line(lineNumber)
+            .columnNumber(Integer.valueOf(columnNumber))
+            .rule(rule)
+            .build();
     }
 
     @SneakyThrows
