@@ -23,7 +23,10 @@ public class ViolationLinkableConsoleLogger {
             .append(":[").append(violation.getLine())
             .append(",").append(violation.getColumnNumber())
             .append("] ")
+            .append(System.lineSeparator())
+            .append(" ")
             .append(violation.getDescription())
+            .append(System.lineSeparator())
             .append(" [").append(violation.getRule())
             .append("]")
             .toString();

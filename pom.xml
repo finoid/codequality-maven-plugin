@@ -28,6 +28,7 @@
         <maven.compiler.release>17</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <asciitable.version>0.3.2</asciitable.version>
         <checkstyle.version>12.1.0</checkstyle.version>
         <checker-qual.version>3.51.1</checker-qual.version>
         <commons-codec.version>1.19.0</commons-codec.version>
@@ -55,6 +56,8 @@
         <plexus-xml.version>4.1.0</plexus-xml.version>
         <sisu-maven-plugin.version>0.3.5</sisu-maven-plugin.version>
 
+        <code-quality.feature.enabled>true</code-quality.feature.enabled>
+
         <!-- Internal dependencies -->
         <code-style.version>0.11.0</code-style.version>
 
@@ -63,6 +66,7 @@
         <java-snapshot-testing-junit5.version>4.0.8</java-snapshot-testing-junit5.version>
         <maven-shared-utils.version>3.4.2</maven-shared-utils.version>
         <maven-verifier.version>1.8.0</maven-verifier.version>
+        <json-path.version>2.9.0</json-path.version>
         <junit-jupiter.version>6.0.0</junit-jupiter.version>
         <mockito-junit-jupiter.version>5.20.0</mockito-junit-jupiter.version>
         <datafaker.version>2.5.2</datafaker.version>
@@ -72,8 +76,6 @@
         <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-
-        <json-path.version>2.9.0</json-path.version>
     </properties>
 
     <developers>
@@ -156,6 +158,25 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>de.vandermeer</groupId>
+            <artifactId>asciitable</artifactId>
+            <version>${asciitable.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr-runtime</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.antlr</groupId>
+                    <artifactId>antlr4</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>org.checkerframework</groupId>
             <artifactId>checker-qual</artifactId>

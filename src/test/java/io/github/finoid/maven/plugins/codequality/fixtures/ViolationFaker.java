@@ -6,6 +6,7 @@ import io.github.finoid.maven.plugins.codequality.report.Violation;
 import java.util.Random;
 
 public class ViolationFaker implements Faker<Violation> {
+    private final String tool;
     private final String description;
     private final String fingerprint;
     private Severity severity;
@@ -19,6 +20,7 @@ public class ViolationFaker implements Faker<Violation> {
     public ViolationFaker(final Random random) {
         this.randomGenerator = RandomGenerator.of(random);
 
+        this.tool = randomGenerator.randomIn("ErrorProne", "Checkstyle", "CheckerFramework");
         this.description = "Description " + randomGenerator.randomAlphanumeric(10);
         this.fingerprint = randomGenerator.randomAlphanumeric(16);
         this.severity = randomGenerator.randomEnum(Severity.class);
@@ -31,16 +33,17 @@ public class ViolationFaker implements Faker<Violation> {
 
     @Override
     public Violation create() {
-        return new Violation(
-            description,
-            fingerprint,
-            severity,
-            relativePath,
-            fullPath,
-            line,
-            columnNumber,
-            rule
-        );
+        return Violation.builder()
+            .tool(tool)
+            .description(description)
+            .fingerprint(fingerprint)
+            .severity(severity)
+            .relativePath(relativePath)
+            .fullPath(fullPath)
+            .line(line)
+            .columnNumber(columnNumber)
+            .rule(rule)
+            .build();
     }
 
     public ViolationFaker withSeverity(final Severity severity) {

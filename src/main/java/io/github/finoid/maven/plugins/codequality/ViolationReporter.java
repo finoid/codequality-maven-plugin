@@ -17,4 +17,9 @@ public interface ViolationReporter {
      * @param stepResults the collected results of all executed code quality steps
      */
     void report(final Log log, final StepResults stepResults);
+
+    /**
+     * The name of the violation reporter.
+     */
+    String name();
 }

@@ -33,6 +33,8 @@ import java.util.Locale;
  */
 @Component(role = ViolationReporter.class, hint = "gitlab-file")
 public class GitLabFileViolationReporter implements ViolationReporter {
+    public static final String NAME = "GITLAB_FILE_VIOLATION";
+
     private final ObjectMapper objectMapper;
     private final MavenSession mavenSession;
 
@@ -59,6 +61,11 @@ public class GitLabFileViolationReporter implements ViolationReporter {
         } catch (final Exception e) {
             throw new ReportRendererException("Error during generation of code quality report", e);
         }
+    }
+
+    @Override
+    public String name() {
+        return NAME;
     }
 
     private static GitLabViolation gitLabViolationOf(final Violation violation) {
