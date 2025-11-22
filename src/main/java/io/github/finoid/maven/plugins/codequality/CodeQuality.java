@@ -4,9 +4,11 @@ import io.github.finoid.maven.plugins.codequality.configuration.CodeQualityConfi
 import io.github.finoid.maven.plugins.codequality.configuration.Configuration;
 import io.github.finoid.maven.plugins.codequality.exceptions.SeverityThresholdException;
 import io.github.finoid.maven.plugins.codequality.exceptions.StepExecutionException;
+import io.github.finoid.maven.plugins.codequality.filter.Violations;
+import io.github.finoid.maven.plugins.codequality.filter.ViolationsFilterService;
+import io.github.finoid.maven.plugins.codequality.filter.ViolationsFilterService.Context;
 import io.github.finoid.maven.plugins.codequality.handlers.CleanHandler;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
-import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.step.CheckerFrameworkStep;
 import io.github.finoid.maven.plugins.codequality.step.CheckstyleStep;
 import io.github.finoid.maven.plugins.codequality.step.ErrorProneStep;
@@ -38,6 +40,7 @@ public class CodeQuality extends AbstractMojo {
     private final MavenSession mavenSession;
     private final StepResultsRepository stepResultsRepository;
     private final List<ViolationReporter> violationReporters;
+    private final ViolationsFilterService filterService;
 
     @Parameter(alias = "codeQuality")
     private CodeQualityConfiguration codeQualityConfiguration;
@@ -51,6 +54,7 @@ public class CodeQuality extends AbstractMojo {
         final MavenSession mavenSession,
         final StepResultsRepository stepResultsRepository,
         final List<ViolationReporter> violationReporters,
+        final ViolationsFilterService filterService,
         final CodeQualityConfiguration codeQualityConfiguration
     ) {
         this.checkstyleStep = Precondition.nonNull(checkstyleStep, "CheckstyleStep shouldn't be null");
@@ -60,6 +64,7 @@ public class CodeQuality extends AbstractMojo {
         this.mavenSession = Precondition.nonNull(mavenSession, "MavenSession shouldn't be null");
         this.stepResultsRepository = Precondition.nonNull(stepResultsRepository, "StepResultsRepository shouldn't be null");
         this.violationReporters = Precondition.nonNull(violationReporters, "ViolationResultLogOutput shouldn't be null");
+        this.filterService = Precondition.nonNull(filterService, "ViolationsFilterService shouldn't be null");
         this.codeQualityConfiguration = Precondition.nonNull(codeQualityConfiguration, "CodeQualityConfiguration shouldn't be null");
     }
 
@@ -76,7 +81,13 @@ public class CodeQuality extends AbstractMojo {
 
             // Hack to detect execution of the last module
             if (ProjectUtils.isLastModule(mavenSession)) {
-                violationReporting();
+                final StepResults stepResults = stepResultsRepository.getAll();
+                final Violations violations =
+                    new Violations(stepResults.getViolations(Severity.MINOR, true), stepResults.getNonPermissiveViolations(Severity.MINOR));
+
+                final Violations filteredViolations = filterService.filter(violations, new Context(getLog(), codeQualityConfiguration.getViolationFilters()));
+
+                violationReporting(filteredViolations);
             }
         } catch (final Exception e) {
             throw new MojoExecutionException(String.format("Failed during execution. Cause: %s", e.getMessage()), e);
@@ -124,17 +135,12 @@ public class CodeQuality extends AbstractMojo {
         }
     }
 
-    // TODO (nw) option to select which violation reports to apply
-    private void violationReporting() {
-        final StepResults stepResults = stepResultsRepository.getAll();
-
+    private void violationReporting(final Violations violations) {
         violationReporters.stream()
             .filter(it -> codeQualityConfiguration.getViolationReporters().contains(it.name()))
-            .forEach(r -> r.report(getLog(), stepResults));
+            .forEach(r -> r.report(getLog(), violations));
 
-        final List<Violation> nonPermissiveViolations = stepResults.getNonPermissiveViolations(Severity.MINOR);
-
-        if (!nonPermissiveViolations.isEmpty()) {
+        if (!violations.getNonPermissiveViolations().isEmpty()) {
             throw new SeverityThresholdException("Severity threshold has been exceeded.");
         }
     }

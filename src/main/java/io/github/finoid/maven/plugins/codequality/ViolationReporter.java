@@ -1,6 +1,6 @@
 package io.github.finoid.maven.plugins.codequality;
 
-import io.github.finoid.maven.plugins.codequality.step.StepResults;
+import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import org.apache.maven.plugin.logging.Log;
 
 /**
@@ -13,10 +13,10 @@ public interface ViolationReporter {
     /**
      * Reports the results of code quality analysis to the specified Maven log.
      *
-     * @param log         the Maven plugin logger used to emit messages
-     * @param stepResults the collected results of all executed code quality steps
+     * @param log        the Maven plugin logger used to emit messages
+     * @param violations the collected violations of all executed code quality steps
      */
-    void report(final Log log, final StepResults stepResults);
+    void report(final Log log, final Violations violations);
 
     /**
      * The name of the violation reporter.
