@@ -41,7 +41,9 @@
         <jackson.version>2.20.1</jackson.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <javax.inject.version>1</javax.inject.version>
+        <jgit.version>7.1.0.202411261347-r</jgit.version>
         <junit-jupiter-api.version>5.11.4</junit-jupiter-api.version>
+        <json-path.version>2.10.0</json-path.version>
         <jspecify.version>1.0.0</jspecify.version>
         <lombok.version>1.18.42</lombok.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
@@ -74,8 +76,6 @@
         <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <nexus-staging-maven-plugin.version>1.6.13</nexus-staging-maven-plugin.version>
-
-        <json-path.version>2.10.0</json-path.version>
     </properties>
 
     <developers>
@@ -383,6 +383,17 @@
             <groupId>net.datafaker</groupId>
             <artifactId>datafaker</artifactId>
             <version>${datafaker.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jgit</groupId>
+            <artifactId>org.eclipse.jgit</artifactId>
+            <version>${jgit.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
     </dependencies>
 

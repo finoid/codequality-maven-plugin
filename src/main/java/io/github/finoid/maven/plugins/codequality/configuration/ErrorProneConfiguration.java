@@ -12,7 +12,7 @@ public class ErrorProneConfiguration implements Configuration {
      * Whether the error prone analyzer should be enabled or disabled.
      */
     @Parameter(property = "cq.errorprone.enabled")
-    private boolean enabled = false;
+    private boolean enabled = true;
 
     /**
      * Whether the null away analyzer should be enabled or disabled.

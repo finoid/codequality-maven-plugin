@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import io.github.finoid.maven.plugins.codequality.exceptions.ReportRendererException;
+import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.report.gitlab.GitLabViolation;
-import io.github.finoid.maven.plugins.codequality.step.StepResults;
+import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import io.github.finoid.maven.plugins.codequality.util.ProjectUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
@@ -44,13 +45,13 @@ public class GitLabFileViolationReporter implements ViolationReporter {
     }
 
     public GitLabFileViolationReporter(final MavenSession mavenSession, final ObjectMapper objectMapper) {
-        this.mavenSession = mavenSession;
-        this.objectMapper = objectMapper;
+        this.mavenSession = Precondition.nonNull(mavenSession, "MavenSession shouldn't be null");
+        this.objectMapper = Precondition.nonNull(objectMapper, "ObjectMapper shouldn't be null");
     }
 
     @Override
-    public void report(final Log log, final StepResults stepResults) {
-        final List<GitLabViolation> gitLabViolations = stepResults.getViolations(Severity.INFO).stream()
+    public void report(final Log log, final Violations violations) {
+        final List<GitLabViolation> gitLabViolations = violations.all().stream()
             .map(GitLabFileViolationReporter::gitLabViolationOf)
             .toList();
 

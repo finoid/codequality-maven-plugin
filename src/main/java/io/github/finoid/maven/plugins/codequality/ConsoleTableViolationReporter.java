@@ -4,9 +4,9 @@ import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_LongestLine;
 import de.vandermeer.asciithemes.TA_GridThemes;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
+import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
-import io.github.finoid.maven.plugins.codequality.step.StepResults;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.component.annotations.Component;
 
@@ -33,16 +33,13 @@ public class ConsoleTableViolationReporter implements ViolationReporter {
      * into permissive and non-permissive categories, and logs each group with formatting
      * and severity-based log levels.
      *
-     * @param log         the Maven plugin log interface
-     * @param stepResults the results of executed code analysis steps containing violations
+     * @param log        the Maven plugin log interface
+     * @param violations the results of executed code analysis steps containing violations
      */
     @Override
-    public void report(final Log log, final StepResults stepResults) {
-        final List<Violation> permissiveViolations = stepResults.getViolations(Severity.MINOR, true); // TODO (nw) group to skip a iteration
-        final List<Violation> nonPermissiveViolations = stepResults.getNonPermissiveViolations(Severity.MINOR);
-
-        logViolationsForType(log, permissiveViolations, PermissiveType.PERMISSIVE);
-        logViolationsForType(log, nonPermissiveViolations, PermissiveType.NON_PERMISSIVE);
+    public void report(final Log log, final Violations violations) {
+        logViolationsForType(log, violations.getPermissiveViolations(), PermissiveType.PERMISSIVE);
+        logViolationsForType(log, violations.getNonPermissiveViolations(), PermissiveType.NON_PERMISSIVE);
     }
 
     @Override

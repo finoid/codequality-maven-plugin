@@ -3,6 +3,7 @@ package io.github.finoid.maven.plugins.codequality.configuration;
 import io.github.finoid.maven.plugins.codequality.ConsolePlainViolationReporter;
 import io.github.finoid.maven.plugins.codequality.ConsoleTableViolationReporter;
 import io.github.finoid.maven.plugins.codequality.GitLabFileViolationReporter;
+import io.github.finoid.maven.plugins.codequality.filter.DiffCoverageStepResultsFilter;
 import io.github.finoid.maven.plugins.codequality.log.LogLevel;
 import lombok.Data;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -47,7 +48,16 @@ public class CodeQualityConfiguration {
      * <p>
      * Viable options: {@link ConsoleTableViolationReporter#NAME}, {@link ConsolePlainViolationReporter#NAME}, {@link GitLabFileViolationReporter#NAME}
      */
+    @Parameter(property = "cq.violationReporters", readonly = true)
     private Set<String> violationReporters = Set.of(ConsolePlainViolationReporter.NAME, GitLabFileViolationReporter.NAME);
+
+    /**
+     * List of violation filters by name.
+     * <p>
+     * Viable options: {@link DiffCoverageStepResultsFilter#NAME}
+     */
+    @Parameter(property = "cq.violationFilters")
+    private Set<String> violationFilters = Set.of();
 
     @Parameter
     private Versions versions = new Versions();

@@ -1,9 +1,10 @@
 package io.github.finoid.maven.plugins.codequality;
 
+import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import io.github.finoid.maven.plugins.codequality.log.ViolationLinkableConsoleLogger;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
-import io.github.finoid.maven.plugins.codequality.step.StepResults;
+import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.component.annotations.Component;
 
@@ -30,7 +31,7 @@ public class ConsolePlainViolationReporter implements ViolationReporter {
 
     @Inject
     public ConsolePlainViolationReporter(final ViolationLinkableConsoleLogger violationLinkableConsoleLogger) {
-        this.violationLinkableConsoleLogger = violationLinkableConsoleLogger;
+        this.violationLinkableConsoleLogger = Precondition.nonNull(violationLinkableConsoleLogger, "ViolationLinkableConsoleLogger shouldn't be null");
     }
 
     /**
@@ -38,16 +39,13 @@ public class ConsolePlainViolationReporter implements ViolationReporter {
      * into permissive and non-permissive categories, and logs each group with formatting
      * and severity-based log levels.
      *
-     * @param log         the Maven plugin log interface
-     * @param stepResults the results of executed code analysis steps containing violations
+     * @param log        the Maven plugin log interface
+     * @param violations the results of executed code analysis steps containing violations
      */
     @Override
-    public void report(final Log log, final StepResults stepResults) {
-        final List<Violation> permissiveViolations = stepResults.getViolations(Severity.MINOR, true); // TODO (nw) group to skip a iteration
-        final List<Violation> nonPermissiveViolations = stepResults.getNonPermissiveViolations(Severity.MINOR);
-
-        logViolationsForType(log, permissiveViolations, PermissiveType.PERMISSIVE);
-        logViolationsForType(log, nonPermissiveViolations, PermissiveType.NON_PERMISSIVE);
+    public void report(final Log log, final Violations violations) {
+        logViolationsForType(log, violations.getPermissiveViolations(), PermissiveType.PERMISSIVE);
+        logViolationsForType(log, violations.getNonPermissiveViolations(), PermissiveType.NON_PERMISSIVE);
     }
 
     @Override

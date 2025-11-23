@@ -94,6 +94,7 @@ For continuous use across builds, include the plugin in your project’s pom.xml
 | `enabled`                  | Whether the code-quality analyzer should be enabled or disabled.          | `true`                                  |
 | `annotationProcessorPaths` | List of annotation processor paths. Lombok will be automatically appended | `[]`                                    |
 | `violationReporters`       | List of violation reporters.                                              | `[CONSOLE_PLAIN,GITLAB_FILE_VIOLATION]` |
+| `violationFilters`         | List of violation filters.                                                | `[]`                                    |
 
 ### Checkstyle configuration
 
