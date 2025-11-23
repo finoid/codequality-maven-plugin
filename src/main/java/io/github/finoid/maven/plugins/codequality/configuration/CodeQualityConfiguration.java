@@ -1,5 +1,8 @@
 package io.github.finoid.maven.plugins.codequality.configuration;
 
+import io.github.finoid.maven.plugins.codequality.ConsolePlainViolationReporter;
+import io.github.finoid.maven.plugins.codequality.ConsoleTableViolationReporter;
+import io.github.finoid.maven.plugins.codequality.GitLabFileViolationReporter;
 import io.github.finoid.maven.plugins.codequality.log.LogLevel;
 import lombok.Data;
 import org.apache.maven.plugins.annotations.Parameter;
@@ -38,6 +41,13 @@ public class CodeQualityConfiguration {
      */
     @Parameter(defaultValue = "${annotationProcessorPaths}", readonly = true)
     private Set<AnnotationProcessorPaths> annotationProcessorPaths = new HashSet<>();
+
+    /**
+     * List of violation reporters by name.
+     * <p>
+     * Viable options: {@link ConsoleTableViolationReporter#NAME}, {@link ConsolePlainViolationReporter#NAME}, {@link GitLabFileViolationReporter#NAME}
+     */
+    private Set<String> violationReporters = Set.of(ConsolePlainViolationReporter.NAME, GitLabFileViolationReporter.NAME);
 
     @Parameter
     private Versions versions = new Versions();

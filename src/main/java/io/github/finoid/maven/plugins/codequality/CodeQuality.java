@@ -128,7 +128,9 @@ public class CodeQuality extends AbstractMojo {
     private void violationReporting() {
         final StepResults stepResults = stepResultsRepository.getAll();
 
-        violationReporters.forEach(r -> r.report(getLog(), stepResults));
+        violationReporters.stream()
+            .filter(it -> codeQualityConfiguration.getViolationReporters().contains(it.name()))
+            .forEach(r -> r.report(getLog(), stepResults));
 
         final List<Violation> nonPermissiveViolations = stepResults.getNonPermissiveViolations(Severity.MINOR);
 

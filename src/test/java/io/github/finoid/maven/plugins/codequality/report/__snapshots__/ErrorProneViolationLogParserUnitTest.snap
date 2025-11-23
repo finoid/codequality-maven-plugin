@@ -2,43 +2,47 @@ io.github.finoid.maven.plugins.codequality.report.ErrorProneViolationLogParserUn
   [
     {
       "columnNumber" : 22,
-      "description" : "ErrorProne: passing @Nullable parameter 'null' where @NonNull is required    (see http://t.uber.com/nullaway )",
-      "fingerprint" : "a7fc3d99998ed9f4a3ab6676a707374a3b919dcca8b001586dd2382f1e552a3a",
+      "description" : "passing @Nullable parameter 'null' where @NonNull is required\n    (see http://t.uber.com/nullaway )",
+      "fingerprint" : "7718e499e24d5e8fe5871a833cb92bdea2e79780f4e43045d1004f30b4fdc380",
       "fullPath" : "***MASKED***",
       "line" : 11,
       "relativePath" : "project/src/main/java/Main.java",
       "rule" : "NullAway",
-      "severity" : "MINOR"
+      "severity" : "MINOR",
+      "tool" : "ErrorProne"
     },
     {
       "columnNumber" : 20,
-      "description" : "ErrorProne: hello implements method in A; expected @Override    (see https://errorprone.info/bugpattern/MissingOverride)  Did you mean '@Override public void hello(String name) {'?",
-      "fingerprint" : "cfe4bf0dc3844abe2090fd68ce95f5b6bd732835ec518031b484772582dd2e6a",
+      "description" : "hello implements method in A; expected @Override\n    (see https://errorprone.info/bugpattern/MissingOverride)\n  Did you mean '@Override public void hello(String name) {'?",
+      "fingerprint" : "addd281632eea9e2aadb9dcf362f047586885d4ac3461ca7349b550357832293",
       "fullPath" : "***MASKED***",
       "line" : 19,
       "relativePath" : "project/src/main/java/Main.java",
       "rule" : "MissingOverride",
-      "severity" : "MINOR"
+      "severity" : "MINOR",
+      "tool" : "ErrorProne"
     },
     {
       "columnNumber" : 25,
-      "description" : "ErrorProne: Reference equality used to compare arrays    (see https://errorprone.info/bugpattern/ArrayEquals)  Did you mean 'Arrays.equals(array1, array2);'?",
-      "fingerprint" : "4aee1bfb002812ad49906a33a4c90abe289bc21739adbf4aca3b7a2e97576051",
+      "description" : "Reference equality used to compare arrays\n    (see https://errorprone.info/bugpattern/ArrayEquals)\n  Did you mean 'Arrays.equals(array1, array2);'?",
+      "fingerprint" : "f361d99208ad10edf3f13826ee3b652eb7fce43697410551339c5f04780fd3de",
       "fullPath" : "***MASKED***",
       "line" : 26,
       "relativePath" : "project/src/main/java/Main.java",
       "rule" : "ArrayEquals",
-      "severity" : "MINOR"
+      "severity" : "MINOR",
+      "tool" : "ErrorProne"
     },
     {
       "columnNumber" : 25,
-      "description" : "ErrorProne: Return value of 'equals' must be used    (see https://errorprone.info/bugpattern/ReturnValueIgnored)  Did you mean 'verify(array1.equals(array2));' or 'var unused = array1.equals(array2);' or to remove this line?",
-      "fingerprint" : "66b4cd118145131604f6cbd5dcc66ce46ce4f504b762f580e018b860b3b5ee93",
+      "description" : "Return value of 'equals' must be used\n    (see https://errorprone.info/bugpattern/ReturnValueIgnored)\n  Did you mean 'verify(array1.equals(array2));' or 'var unused = array1.equals(array2);' or to remove this line?",
+      "fingerprint" : "161c3e887cf240aa0850bd81fef8d578a64f359bbc16cf215aa715ec46760dc5",
       "fullPath" : "***MASKED***",
       "line" : 26,
       "relativePath" : "project/src/main/java/Main.java",
       "rule" : "ReturnValueIgnored",
-      "severity" : "MINOR"
+      "severity" : "MINOR",
+      "tool" : "ErrorProne"
     }
   ]
 ]

@@ -33,6 +33,8 @@ import java.util.Locale;
  */
 @Component(role = ViolationReporter.class, hint = "gitlab-file")
 public class GitLabFileViolationReporter implements ViolationReporter {
+    public static final String NAME = "GITLAB_FILE_VIOLATION";
+
     private final ObjectMapper objectMapper;
     private final MavenSession mavenSession;
 
@@ -61,9 +63,14 @@ public class GitLabFileViolationReporter implements ViolationReporter {
         }
     }
 
+    @Override
+    public String name() {
+        return NAME;
+    }
+
     private static GitLabViolation gitLabViolationOf(final Violation violation) {
         return new GitLabViolation(
-            violation.getDescription(),
+            violation.getTool() + ": " + violation.getDescription(),
             violation.getFingerprint(),
             violation.getSeverity().name().toLowerCase(Locale.ENGLISH),
             new GitLabViolation.Location(violation.getRelativePath(), new GitLabViolation.Lines(violation.getLine())));

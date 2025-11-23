@@ -4,7 +4,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 /**
- * Inspired by com.jayway.jsonpath.internal.JsonFormatter
+ * Inspired by com.jayway.jsonpath.internal.JsonFormatter.
  */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @SuppressWarnings("MissingSwitchDefault")

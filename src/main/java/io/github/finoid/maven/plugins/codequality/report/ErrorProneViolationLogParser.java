@@ -63,14 +63,16 @@ public class ErrorProneViolationLogParser implements ViolationLogParser {
 
         errorProneViolationBuffer
             .append(currentLine)
+            .append(System.lineSeparator()) // mimic the original output from error prone
             .append(reader.readLine());
 
         reader.mark(READ_AHEAD_LIMIT);
 
-        String peakAhead = reader.readLine();
+        final String peakAhead = reader.readLine();
 
         // optional third line: typically "  Did you mean ..."
-        if (peakAhead.startsWith(THIRD_LINE_PREFIX)) {
+        if (peakAhead != null && peakAhead.startsWith(THIRD_LINE_PREFIX)) {
+            errorProneViolationBuffer.append(System.lineSeparator()); // mimic the original output from error prone
             errorProneViolationBuffer.append(peakAhead);
         } else {
             // Not a valid third line, rewind so the outer loop will process it
@@ -79,7 +81,7 @@ public class ErrorProneViolationLogParser implements ViolationLogParser {
 
         final Matcher violationMatcher = VIOLATION_PATTERN.matcher(errorProneViolationBuffer.toString());
         if (!violationMatcher.find()) {
-            LOGGER.warn("Unexpected error prone log. Log: " + errorProneViolationBuffer);
+            LOGGER.debug("Unexpected error prone log. Log: " + errorProneViolationBuffer);
 
             return Optional.empty();
         }
@@ -91,7 +93,7 @@ public class ErrorProneViolationLogParser implements ViolationLogParser {
         final Matcher violationMatcher = VIOLATION_PATTERN.matcher(errorProneViolationLines);
 
         if (!violationMatcher.find()) {
-            LOGGER.warn("Unexpected error prone log. Log: " + errorProneViolationLines);
+            LOGGER.debug("Unexpected error prone log. Log: " + errorProneViolationLines);
 
             return Optional.empty();
         }
