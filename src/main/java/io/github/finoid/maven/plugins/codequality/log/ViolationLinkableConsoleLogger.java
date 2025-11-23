@@ -20,15 +20,19 @@ public class ViolationLinkableConsoleLogger {
     public String format(final Violation violation) {
         return new StringBuilder() // TODO (nw) keep using string builder and set the actual length?
             .append(violation.getFullPath())
-            .append(":[").append(violation.getLine())
-            .append(",").append(violation.getColumnNumber())
+            .append(":[")
+            .append(violation.getLine())
+            .append(",")
+            .append(violation.getColumnNumber())
             .append("] ")
             .append(System.lineSeparator())
             .append(" ")
+            .append(" [")
+            .append(violation.getTool())
+            .append(" - ")
+            .append(violation.getRule())
+            .append("] ")
             .append(violation.getDescription())
-            .append(System.lineSeparator())
-            .append(" [").append(violation.getRule())
-            .append("]")
             .toString();
     }
 }

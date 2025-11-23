@@ -32,14 +32,14 @@ public class ViolationConverter {
 
         return Violation.builder()
             .tool("Checkstyle")
-            .description(String.format("%s: %s", "Checkstyle", auditEvent.getMessage()))
+            .description(auditEvent.getMessage())
             .fingerprint(fingerprint(repositoryRoot, auditEvent))
             .severity(severity(auditEvent.getSeverityLevel()))
             .relativePath(relativePath(repositoryRoot, auditEvent.getFileName()))
             .fullPath(auditEvent.getFileName().replace("\\", "/")) // Windows compatibility
             .line(lineNumber(auditEvent))
             .columnNumber(auditEvent.getColumn())
-            .rule(auditEvent.getViolation().getKey() + " - " + sourceName(auditEvent))
+            .rule(sourceName(auditEvent) + "(" + auditEvent.getViolation().getKey() + ")")
             .build();
     }
 
@@ -56,7 +56,7 @@ public class ViolationConverter {
 
         return Violation.builder()
             .tool("ErrorProne")
-            .description(String.format("%s: %s", "ErrorProne", description))
+            .description(description)
             .fingerprint(fingerprint(repositoryRoot, absoluteFilePath, description, lineNumber, columnNumber))
             .severity(Severity.MINOR)
             .relativePath(relativePath(repositoryRoot, absoluteFilePath))
@@ -78,7 +78,7 @@ public class ViolationConverter {
 
         return Violation.builder()
             .tool("CheckerFramework")
-            .description(String.format("%s: %s", "CheckerFramework", description))
+            .description(description)
             .fingerprint(fingerprint(repositoryRoot, absoluteFilePath, description, lineNumber, columnNumber))
             .severity(Severity.MINOR)
             .relativePath(relativePath(repositoryRoot, absoluteFilePath))

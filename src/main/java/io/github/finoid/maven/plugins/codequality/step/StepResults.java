@@ -18,7 +18,6 @@ public class StepResults {
         return new StepResults(results);
     }
 
-
     /**
      * Retrieve violations across all project steps have severity equal to or higher than the specified threshold.
      *

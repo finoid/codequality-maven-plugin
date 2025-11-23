@@ -70,7 +70,7 @@ public class GitLabFileViolationReporter implements ViolationReporter {
 
     private static GitLabViolation gitLabViolationOf(final Violation violation) {
         return new GitLabViolation(
-            violation.getDescription(),
+            violation.getTool() + ": " + violation.getDescription(),
             violation.getFingerprint(),
             violation.getSeverity().name().toLowerCase(Locale.ENGLISH),
             new GitLabViolation.Location(violation.getRelativePath(), new GitLabViolation.Lines(violation.getLine())));

@@ -59,7 +59,7 @@ public class LogAndFileAppender implements Log {
     @Override
     public void info(final CharSequence content) {
         if (logLevel.compareTo(LogLevel.INFO) >= 0) {
-            logger.info(messageOfContent(content));
+            // logger.info(messageOfContent(content));
         }
 
         printStream.println(messageOfContent(content));
@@ -68,7 +68,7 @@ public class LogAndFileAppender implements Log {
     @Override
     public void info(final CharSequence content, final Throwable error) {
         if (logLevel.compareTo(LogLevel.INFO) >= 0) {
-            logger.info(messageOfContent(content), error);
+            // logger.info(messageOfContent(content), error);
         }
 
         printStream.println(messageOfContent(content));
@@ -86,7 +86,7 @@ public class LogAndFileAppender implements Log {
     @Override
     public void warn(final CharSequence content) {
         if (logLevel.compareTo(LogLevel.WARN) >= 0) {
-            logger.warn(messageOfContent(content));
+            // logger.warn(messageOfContent(content));
         }
 
         printStream.println(messageOfContent(content));

@@ -42,7 +42,12 @@ public class CodeQualityConfiguration {
     @Parameter(defaultValue = "${annotationProcessorPaths}", readonly = true)
     private Set<AnnotationProcessorPaths> annotationProcessorPaths = new HashSet<>();
 
-    private Set<String> violationReporters = Set.of(ConsoleTableViolationReporter.NAME, ConsolePlainViolationReporter.NAME, GitLabFileViolationReporter.NAME);
+    /**
+     * List of violation reporters by name.
+     * <p>
+     * Viable options: {@link ConsoleTableViolationReporter#NAME}, {@link ConsolePlainViolationReporter#NAME}, {@link GitLabFileViolationReporter#NAME}
+     */
+    private Set<String> violationReporters = Set.of(ConsolePlainViolationReporter.NAME, GitLabFileViolationReporter.NAME);
 
     @Parameter
     private Versions versions = new Versions();

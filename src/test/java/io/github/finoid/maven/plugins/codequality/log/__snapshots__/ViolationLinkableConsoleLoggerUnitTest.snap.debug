@@ -1,3 +1,0 @@
-io.github.finoid.maven.plugins.codequality.log.ViolationLinkableConsoleLoggerUnitTest.givenViolation_whenFormat_thenExpectedFormat=[
-  "/path/to/file/yODP9n82.java:[17,72] \n Description y8KUzpAd74\n [70aSDmZ6mk]"
-]

@@ -1,13 +1,14 @@
 io.github.finoid.maven.plugins.codequality.step.ViolationConverterUnitTest.givenValidLogEntryAndMatcher_whenOfAuditEvent_thenExpectedViolation=[
   {
     "columnNumber" : 14,
-    "description" : "Checkstyle: Descriptive violation siTgN",
+    "description" : "Descriptive violation siTgN",
     "fingerprint" : "2ada6236b7b78f6b4b14e0f6eedd625e489bfb37af8525e055165f79bf6cd1b7",
     "fullPath" : "***MASKED***",
     "line" : 54,
     "relativePath" : "src/main/java/io/github/finoid/maven/plugins/codequality/step/CheckerFrameworkStep.java",
-    "rule" : "LX8lv - Violation",
-    "severity" : "INFO"
+    "rule" : "Violation(LX8lv)",
+    "severity" : "INFO",
+    "tool" : "Checkstyle"
   }
 ]
 
@@ -15,13 +16,14 @@ io.github.finoid.maven.plugins.codequality.step.ViolationConverterUnitTest.given
 io.github.finoid.maven.plugins.codequality.step.ViolationConverterUnitTest.givenValidLogEntryAndMatcher_whenOfCheckerFrameworkViolationMatcher_thenExpectedViolation=[
   {
     "columnNumber" : 29,
-    "description" : "CheckerFramework: @MustCall method close may not have been invoked on SpringApplication.run(Application.class, args) or any of its aliases.",
+    "description" : "@MustCall method close may not have been invoked on SpringApplication.run(Application.class, args) or any of its aliases.",
     "fingerprint" : "a74302f3e5535ae3ccd8af1ba7ae87c16f4d27faba4f3b6539106de5ac3f2da1",
     "fullPath" : "***MASKED***",
     "line" : 10,
     "relativePath" : "src/main/java/io/github/finoid/maven/plugins/codequality/step/CheckerFrameworkStep.java",
     "rule" : "required.method.not.called",
-    "severity" : "MINOR"
+    "severity" : "MINOR",
+    "tool" : "CheckerFramework"
   }
 ]
 
@@ -29,12 +31,13 @@ io.github.finoid.maven.plugins.codequality.step.ViolationConverterUnitTest.given
 io.github.finoid.maven.plugins.codequality.step.ViolationConverterUnitTest.givenValidLogEntryAndMatcher_whenOfErrorProneViolationMatcher_thenExpectedViolation=[
   {
     "columnNumber" : 24,
-    "description" : "ErrorProne: Specify a `Locale` when calling `String#to{Lower,Upper}Case`. (Note: there are multiple suggested fixes; the third may be most appropriate if you're dealing with ASCII Strings.)\n    (see https://errorprone.info/bugpattern/StringCaseLocaleUsage)\n  Did you mean '.toLowerCase(Locale.ROOT);' or '.toLowerCase(Locale.getDefault());' or 'return Ascii.toLowerCase(currentSpan.getSpanContext()'?",
+    "description" : "Specify a `Locale` when calling `String#to{Lower,Upper}Case`. (Note: there are multiple suggested fixes; the third may be most appropriate if you're dealing with ASCII Strings.)\n    (see https://errorprone.info/bugpattern/StringCaseLocaleUsage)\n  Did you mean '.toLowerCase(Locale.ROOT);' or '.toLowerCase(Locale.getDefault());' or 'return Ascii.toLowerCase(currentSpan.getSpanContext()'?",
     "fingerprint" : "16251fd6d9cde2f70cb271982ecc4ef4afd91001300ff80116e66ec8ad65b90b",
     "fullPath" : "***MASKED***",
     "line" : 24,
     "relativePath" : "src/main/java/io/github/finoid/library/otel/OpenTelemetryUtils.java",
     "rule" : "StringCaseLocaleUsage",
-    "severity" : "MINOR"
+    "severity" : "MINOR",
+    "tool" : "ErrorProne"
   }
 ]

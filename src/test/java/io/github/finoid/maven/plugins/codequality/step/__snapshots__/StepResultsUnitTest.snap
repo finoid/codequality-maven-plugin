@@ -1,14 +1,15 @@
 io.github.finoid.maven.plugins.codequality.step.StepResultsUnitTest.givenNonPermissiveViolation_whenGetNonPermissiveViolations_thenReturnsExpectedViolation=[
   [
     {
-      "columnNumber" : 17,
-      "description" : "Description Zv2g7O0N4P",
-      "fingerprint" : "LX8lvD1HROP1zV9O",
-      "fullPath" : "/path/to/file/bNnRLyKE.java",
-      "line" : 72,
-      "relativePath" : "/file/KR1nHTx7.java",
-      "rule" : "ZsDtD78bWT",
-      "severity" : "MAJOR"
+      "columnNumber" : 72,
+      "description" : "Description y8KUzpAd74",
+      "fingerprint" : "D1JQOL12N8Aid9TY",
+      "fullPath" : "/path/to/file/yODP9n82.java",
+      "line" : 17,
+      "relativePath" : "/file/XTxEY88d.java",
+      "rule" : "70aSDmZ6mk",
+      "severity" : "BLOCKER",
+      "tool" : "ErrorProne"
     }
   ]
 ]
