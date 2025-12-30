@@ -1,4 +1,4 @@
-package io.github.finoid.maven.plugins.codequality.report;
+package io.github.finoid.maven.plugins.codequality.log;
 
 import io.github.finoid.maven.plugins.codequality.exceptions.ParseException;
 import io.github.finoid.maven.plugins.codequality.fixtures.ResourceUtils;

@@ -1,3 +1,3 @@
 io.github.finoid.maven.plugins.codequality.log.ViolationLinkableConsoleLoggerUnitTest.givenViolation_whenFormat_thenExpectedFormat=[
-  "/path/to/file/yODP9n82.java:[17,72] \n  [ErrorProne - 70aSDmZ6mk] Description y8KUzpAd74"
+  "file:///path/to/file/yODP9n82.java:17:72 \n  [ErrorProne - 70aSDmZ6mk] Description y8KUzpAd74"
 ]

@@ -1,4 +1,4 @@
-package io.github.finoid.maven.plugins.codequality;
+package io.github.finoid.maven.plugins.codequality.report.gitlab;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -7,7 +7,7 @@ import io.github.finoid.maven.plugins.codequality.exceptions.ReportRendererExcep
 import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
-import io.github.finoid.maven.plugins.codequality.report.gitlab.GitLabViolation;
+import io.github.finoid.maven.plugins.codequality.report.ViolationReporter;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import io.github.finoid.maven.plugins.codequality.util.ProjectUtils;
 import org.apache.maven.execution.MavenSession;

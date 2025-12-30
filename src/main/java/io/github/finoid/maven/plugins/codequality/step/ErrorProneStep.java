@@ -4,7 +4,7 @@ import io.github.finoid.maven.plugins.codequality.MavenAnnotationProcessorsManag
 import io.github.finoid.maven.plugins.codequality.configuration.CodeQualityConfiguration;
 import io.github.finoid.maven.plugins.codequality.configuration.ErrorProneConfiguration;
 import io.github.finoid.maven.plugins.codequality.exceptions.CodeQualityException;
-import io.github.finoid.maven.plugins.codequality.report.ErrorProneViolationLogParser;
+import io.github.finoid.maven.plugins.codequality.log.ErrorProneViolationLogParser;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.util.CollectorUtils;
 import io.github.finoid.maven.plugins.codequality.util.MojoUtils.ElementUtils;

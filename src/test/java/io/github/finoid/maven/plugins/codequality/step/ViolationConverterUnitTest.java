@@ -3,7 +3,7 @@ package io.github.finoid.maven.plugins.codequality.step;
 import io.github.finoid.maven.plugins.codequality.fixtures.AuditEventFaker;
 import io.github.finoid.maven.plugins.codequality.fixtures.UnitTest;
 import io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogParser;
-import io.github.finoid.maven.plugins.codequality.report.ErrorProneViolationLogParser;
+import io.github.finoid.maven.plugins.codequality.log.ErrorProneViolationLogParser;
 import org.apache.maven.project.MavenProject;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

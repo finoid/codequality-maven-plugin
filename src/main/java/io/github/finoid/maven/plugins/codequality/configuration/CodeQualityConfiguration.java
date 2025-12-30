@@ -1,8 +1,8 @@
 package io.github.finoid.maven.plugins.codequality.configuration;
 
-import io.github.finoid.maven.plugins.codequality.ConsolePlainViolationReporter;
-import io.github.finoid.maven.plugins.codequality.ConsoleTableViolationReporter;
-import io.github.finoid.maven.plugins.codequality.GitLabFileViolationReporter;
+import io.github.finoid.maven.plugins.codequality.report.ConsolePlainViolationReporter;
+import io.github.finoid.maven.plugins.codequality.report.ConsoleTableViolationReporter;
+import io.github.finoid.maven.plugins.codequality.report.gitlab.GitLabFileViolationReporter;
 import io.github.finoid.maven.plugins.codequality.filter.DiffCoverageStepResultsFilter;
 import io.github.finoid.maven.plugins.codequality.log.LogLevel;
 import lombok.Data;

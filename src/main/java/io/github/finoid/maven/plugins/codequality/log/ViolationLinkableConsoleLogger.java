@@ -18,13 +18,15 @@ public class ViolationLinkableConsoleLogger {
      */
     @SuppressWarnings("UnnecessaryStringBuilder")
     public String format(final Violation violation) {
-        return new StringBuilder() // TODO (nw) keep using string builder and set the actual length?
+        // TODO (nw) keep using string builder and set the actual length?
+        return new StringBuilder()
+            .append("file://")
             .append(violation.getFullPath())
-            .append(":[")
+            .append(":")
             .append(violation.getLine())
-            .append(",")
+            .append(":")
             .append(violation.getColumnNumber())
-            .append("] ")
+            .append(" ")
             .append(System.lineSeparator())
             .append(" ")
             .append(" [")

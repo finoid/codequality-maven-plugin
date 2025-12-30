@@ -1,4 +1,4 @@
-package io.github.finoid.maven.plugins.codequality;
+package io.github.finoid.maven.plugins.codequality.report;
 
 import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import org.apache.maven.plugin.logging.Log;

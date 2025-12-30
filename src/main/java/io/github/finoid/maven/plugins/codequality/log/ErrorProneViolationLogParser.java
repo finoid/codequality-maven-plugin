@@ -1,6 +1,8 @@
-package io.github.finoid.maven.plugins.codequality.report;
+package io.github.finoid.maven.plugins.codequality.log;
 
 import io.github.finoid.maven.plugins.codequality.exceptions.ParseException;
+import io.github.finoid.maven.plugins.codequality.report.Violation;
+import io.github.finoid.maven.plugins.codequality.report.ViolationLogParser;
 import io.github.finoid.maven.plugins.codequality.step.ViolationConverter;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import org.codehaus.plexus.logging.Logger;

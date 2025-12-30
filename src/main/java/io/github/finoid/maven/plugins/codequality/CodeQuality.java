@@ -9,6 +9,7 @@ import io.github.finoid.maven.plugins.codequality.filter.ViolationsFilterService
 import io.github.finoid.maven.plugins.codequality.filter.ViolationsFilterService.Context;
 import io.github.finoid.maven.plugins.codequality.handlers.CleanHandler;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
+import io.github.finoid.maven.plugins.codequality.report.ViolationReporter;
 import io.github.finoid.maven.plugins.codequality.step.CheckerFrameworkStep;
 import io.github.finoid.maven.plugins.codequality.step.CheckstyleStep;
 import io.github.finoid.maven.plugins.codequality.step.ErrorProneStep;
