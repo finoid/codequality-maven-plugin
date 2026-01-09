@@ -32,6 +32,7 @@ import java.util.Locale;
  * <p>This reporter uses Jackson for JSON serialization and can be customized via a
  * provided {@link ObjectMapper} if needed.
  */
+@SuppressWarnings("deprecation")
 @Component(role = ViolationReporter.class, hint = "gitlab-file")
 public class GitLabFileViolationReporter implements ViolationReporter {
     public static final String NAME = "GITLAB_FILE_VIOLATION";
