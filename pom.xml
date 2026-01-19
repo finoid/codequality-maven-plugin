@@ -38,7 +38,7 @@
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
         <guava.version>33.5.0-jre</guava.version>
         <httpcore.version>4.4.16</httpcore.version>
-        <jackson.version>2.20.1</jackson.version>
+        <jackson.version>2.21.0</jackson.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
         <javax.inject.version>1</javax.inject.version>
         <jgit.version>7.5.0.202512021534-r</jgit.version>
