@@ -59,9 +59,9 @@ public class ErrorProneConfiguration implements Configuration {
     @Data
     public static class Versions {
         @Parameter(defaultValue = "cq.errorprone.versions.errorprone")
-        private String errorProne = "2.26.1";
+        private String errorProne = "2.46.0";
 
         @Parameter(defaultValue = "cq.errorprone.versions.nullaway")
-        private String nullAway = "0.10.25";
+        private String nullAway = "0.13.1";
     }
 }

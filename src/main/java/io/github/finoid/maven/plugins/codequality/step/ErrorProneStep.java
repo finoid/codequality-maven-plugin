@@ -224,6 +224,9 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
             // Single-compilation-unit policy for javac
             args.add(arg("-XDcompilePolicy=simple"));
 
+            args.add(arg("--should-stop=ifError=FLOW")); // https://github.com/google/error-prone/issues/4595
+            args.add(arg("-XDaddTypeAnnotationsToSymbol=true")); // https://github.com/google/error-prone/issues/5426
+
             // Lint config (suppress specific warnings; lombok/JPMS compatibility)
             args.add(arg("-Xlint:all,-serial,-processing,-requires-transitive-automatic,-missing-explicit-ctor,-exports,-requires-automatic"));
 
@@ -258,8 +261,11 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
                 for (final MavenProject mavenProject : allProjects) {
                     final String finalName = (mavenProject.getBuild() != null) ? mavenProject.getBuild().getFinalName() : null;
 
-                    if (finalName != null && entry.contains(finalName)) {
+                    final String artifactNameAndVersion = mavenProject.getArtifact().getArtifactId() + "-" + mavenProject.getArtifact().getVersion() + ".jar";
+
+                    if (finalName != null && entry.contains(artifactNameAndVersion)) {
                         final String replacement = Paths.get(mavenProject.getBuild().getDirectory(), ERROR_PRONE_CLASSES_DIR).toString();
+
                         it.set(replacement);
                         break;
                     }
