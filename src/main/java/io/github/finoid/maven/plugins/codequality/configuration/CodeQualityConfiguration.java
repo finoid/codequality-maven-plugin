@@ -65,12 +65,12 @@ public class CodeQualityConfiguration {
     @Data
     public static class Versions {
         @Parameter(property = "cq.versions.mavenCompiler")
-        private String mavenCompiler = "3.13.0";
+        private String mavenCompiler = "3.15.0";
 
         @Parameter(property = "cq.versions.mavenClean")
-        private String mavenClean = "3.1.0";
+        private String mavenClean = "3.5.0";
 
         @Parameter(property = "cq.versions.mavenAntRun")
-        private String mavenAntRun = "3.1.0";
+        private String mavenAntRun = "3.2.0";
     }
 }
