@@ -56,7 +56,7 @@
         <plexus-component-annotations.version>2.2.0</plexus-component-annotations.version>
         <plexus-utils.version>4.0.2</plexus-utils.version>
         <plexus-xml.version>4.1.1</plexus-xml.version>
-        <sisu-maven-plugin.version>0.3.5</sisu-maven-plugin.version>
+        <sisu-maven-plugin.version>1.0.0</sisu-maven-plugin.version>
 
         <!-- Internal dependencies -->
         <code-style.version>0.11.0</code-style.version>
