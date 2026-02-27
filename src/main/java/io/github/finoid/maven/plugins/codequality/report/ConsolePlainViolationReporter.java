@@ -4,9 +4,10 @@ import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import io.github.finoid.maven.plugins.codequality.log.ViolationLinkableConsoleLogger;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.component.annotations.Component;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Locale;
 
@@ -17,7 +18,8 @@ import java.util.Locale;
  * <p>Violations are categorized into permissive and non-permissive types, and output is formatted
  * accordingly using green (informational) or yellow (warnings) coloring.
  */
-@Component(role = ViolationReporter.class, hint = "console-plain")
+@Named("console-plain")
+@Singleton
 public class ConsolePlainViolationReporter implements ViolationReporter {
     public static final String NAME = "CONSOLE_PLAIN";
 

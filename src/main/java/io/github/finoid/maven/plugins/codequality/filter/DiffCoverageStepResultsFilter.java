@@ -1,11 +1,13 @@
 package io.github.finoid.maven.plugins.codequality.filter;
 
 import org.apache.maven.execution.MavenSession;
-import org.codehaus.plexus.component.annotations.Component;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 
-@Component(role = ViolationFilter.class, hint = "diff-coverage")
+@Named("diff-coverage")
+@Singleton
 public class DiffCoverageStepResultsFilter implements ViolationFilter {
     public static final String NAME = "DIFF_COVERAGE";
 

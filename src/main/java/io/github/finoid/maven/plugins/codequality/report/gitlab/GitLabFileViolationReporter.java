@@ -12,9 +12,10 @@ import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import io.github.finoid.maven.plugins.codequality.util.ProjectUtils;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.component.annotations.Component;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -32,8 +33,8 @@ import java.util.Locale;
  * <p>This reporter uses Jackson for JSON serialization and can be customized via a
  * provided {@link ObjectMapper} if needed.
  */
-@SuppressWarnings("deprecation")
-@Component(role = ViolationReporter.class, hint = "gitlab-file")
+@Named("gitlab-file")
+@Singleton
 public class GitLabFileViolationReporter implements ViolationReporter {
     public static final String NAME = "GITLAB_FILE_VIOLATION";
 

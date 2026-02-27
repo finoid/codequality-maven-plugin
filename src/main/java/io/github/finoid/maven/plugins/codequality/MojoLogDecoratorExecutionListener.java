@@ -16,7 +16,6 @@ import org.apache.maven.execution.MojoExecutionListener;
 import org.apache.maven.project.MavenProject;
 import org.checkerframework.checker.formatter.qual.ConversionCategory;
 import org.checkerframework.checker.formatter.qual.Format;
-import org.codehaus.plexus.component.annotations.Component;
 import org.codehaus.plexus.logging.Logger;
 import org.codehaus.plexus.logging.LoggerManager;
 import org.codehaus.plexus.logging.console.ConsoleLogger;
@@ -24,6 +23,8 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.jspecify.annotations.Nullable;
 
 import javax.inject.Inject;
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,7 +39,8 @@ import java.nio.file.Paths;
  * This class serves as a workaround to enable log collection for {@code CompilerMojo} executions, where specific logging is required, such as
  * for the ErrorProne and Checker Framework steps.
  */
-@Component(role = MojoExecutionListener.class)
+@Named
+@Singleton
 public class MojoLogDecoratorExecutionListener implements MojoExecutionListener {
     private static final String COMPILER_MOJO = "CompilerMojo";
     private static final Logger LOGGER = new ConsoleLogger(1, "console");

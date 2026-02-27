@@ -6,8 +6,9 @@ import de.vandermeer.asciithemes.TA_GridThemes;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
 import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import org.apache.maven.plugin.logging.Log;
-import org.codehaus.plexus.component.annotations.Component;
 
+import javax.inject.Named;
+import javax.inject.Singleton;
 import java.util.List;
 import java.util.Locale;
 
@@ -18,7 +19,8 @@ import java.util.Locale;
  * <p>Violations are categorized into permissive and non-permissive types, and output is formatted
  * accordingly using green (informational) or yellow (warnings) coloring.
  */
-@Component(role = ViolationReporter.class, hint = "console-table")
+@Named("console-table")
+@Singleton
 public class ConsoleTableViolationReporter implements ViolationReporter {
     public static final String NAME = "CONSOLE_TABLE";
 
