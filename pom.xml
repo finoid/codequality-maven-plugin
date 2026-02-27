@@ -30,7 +30,7 @@
 
         <asciitable.version>0.3.2</asciitable.version>
         <checkstyle.version>12.1.2</checkstyle.version>
-        <checker-framework.version>3.53.0</checker-framework.version>
+        <checker-framework.version>3.53.1</checker-framework.version>
         <error-prone.version>2.47.0</error-prone.version>
         <nullaway.version>0.13.1</nullaway.version>
         <checker-qual.version>3.53.1</checker-qual.version>
