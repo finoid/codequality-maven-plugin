@@ -83,7 +83,7 @@ public class ConsolePlainViolationReporter implements ViolationReporter {
         PERMISSIVE,
         NON_PERMISSIVE;
 
-        public String displayName() {
+        private String displayName() {
             return name().replace('_', ' ')
                 .toLowerCase(Locale.ROOT);
         }

@@ -93,6 +93,7 @@ public final class ProjectUtils {
      * @return the resolved step log level, or the fallback
      * @throws IllegalArgumentException if the step log level is invalid
      */
+    @SuppressWarnings("introduce.eliminate")
     public static LogLevel stepLogLevelOrFallback(final MavenSession mavenSession,
                                                   final LogLevel fallback) {
         final Plugin plugin = mavenSession.getCurrentProject()

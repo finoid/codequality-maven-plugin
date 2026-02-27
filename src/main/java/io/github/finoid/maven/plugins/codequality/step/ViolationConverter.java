@@ -148,13 +148,10 @@ public class ViolationConverter {
     }
 
     private Severity severity(final SeverityLevel severity) {
-        switch (severity) {
-            case ERROR:
-                return Severity.MAJOR;
-            case WARNING:
-                return Severity.MINOR;
-            default:
-                return Severity.INFO;
-        }
+        return switch (severity) {
+            case ERROR -> Severity.MAJOR;
+            case WARNING -> Severity.MINOR;
+            default -> Severity.INFO;
+        };
     }
 }

@@ -60,6 +60,7 @@ public class ErrorProneConfiguration implements Configuration {
     }
 
     @Data
+    @SuppressWarnings({"checkstyle:EmptyCatchBlock", "EmptyCatch"})
     public static class Versions {
         private static final String DEFAULT_ERROR_PRONE;
         private static final String DEFAULT_NULL_AWAY;

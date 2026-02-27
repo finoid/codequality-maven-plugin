@@ -74,6 +74,9 @@
         <mockito-junit-jupiter.version>5.21.0</mockito-junit-jupiter.version>
         <datafaker.version>2.5.4</datafaker.version>
 
+        <!-- Code quality feature flags and configuration -->
+        <code-quality.feature.checker-framework>true</code-quality.feature.checker-framework>
+
         <central-publishing-maven-plugin.version>0.7.0</central-publishing-maven-plugin.version>
         <maven-gpg-plugin.version>3.1.0</maven-gpg-plugin.version>
         <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>

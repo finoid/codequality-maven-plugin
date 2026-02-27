@@ -143,7 +143,7 @@ public class MojoLogDecoratorExecutionListener implements MojoExecutionListener 
         @Format(ConversionCategory.GENERAL)
         private final String outputFileNameTemplate;
 
-        public String composeFileName(final String artifactId) {
+        private String composeFileName(final String artifactId) {
             return String.format(outputFileNameTemplate, artifactId);
         }
     }

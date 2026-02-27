@@ -60,6 +60,7 @@ public class CheckerFrameworkConfiguration implements Configuration {
     }
 
     @Data
+    @SuppressWarnings({"checkstyle:EmptyCatchBlock", "EmptyCatch"})
     public static class Versions {
         private static final String DEFAULT_CHECKER_FRAMEWORK;
 

@@ -217,7 +217,7 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
             "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
         );
 
-        public static List<MojoExecutor.Element> compose(final CheckerFrameworkConfiguration checkerFrameworkConfiguration, final MavenSession mavenSession) {
+        private static List<MojoExecutor.Element> compose(final CheckerFrameworkConfiguration checkerFrameworkConfiguration, final MavenSession mavenSession) {
             final List<MojoExecutor.Element> args = new ArrayList<>();
 
             // caller-provided compiler args (first to allow later overrides to win if needed)
