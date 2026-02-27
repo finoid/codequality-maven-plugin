@@ -3,7 +3,10 @@ package io.github.finoid.maven.plugins.codequality.configuration;
 import lombok.Data;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
+import java.util.Properties;
 import java.util.Set;
 
 @Data
@@ -58,10 +61,25 @@ public class ErrorProneConfiguration implements Configuration {
 
     @Data
     public static class Versions {
+        private static final String DEFAULT_ERROR_PRONE;
+        private static final String DEFAULT_NULL_AWAY;
+
+        static {
+            final Properties props = new Properties();
+            try (InputStream is = Versions.class.getResourceAsStream("/errorprone-versions.properties")) {
+                if (is != null) {
+                    props.load(is);
+                }
+            } catch (final IOException ignored) {
+            }
+            DEFAULT_ERROR_PRONE = props.getProperty("errorprone.version", "2.46.0");
+            DEFAULT_NULL_AWAY = props.getProperty("nullaway.version", "0.13.1");
+        }
+
         @Parameter(defaultValue = "cq.errorprone.versions.errorprone")
-        private String errorProne = "2.46.0";
+        private String errorProne = DEFAULT_ERROR_PRONE;
 
         @Parameter(defaultValue = "cq.errorprone.versions.nullaway")
-        private String nullAway = "0.13.1";
+        private String nullAway = DEFAULT_NULL_AWAY;
     }
 }

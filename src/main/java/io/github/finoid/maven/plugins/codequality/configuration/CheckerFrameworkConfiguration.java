@@ -3,7 +3,10 @@ package io.github.finoid.maven.plugins.codequality.configuration;
 import lombok.Data;
 import org.apache.maven.plugins.annotations.Parameter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
+import java.util.Properties;
 import java.util.Set;
 
 @Data
@@ -58,7 +61,20 @@ public class CheckerFrameworkConfiguration implements Configuration {
 
     @Data
     public static class Versions {
+        private static final String DEFAULT_CHECKER_FRAMEWORK;
+
+        static {
+            final Properties props = new Properties();
+            try (InputStream is = Versions.class.getResourceAsStream("/checkerframework-versions.properties")) {
+                if (is != null) {
+                    props.load(is);
+                }
+            } catch (final IOException ignored) {
+            }
+            DEFAULT_CHECKER_FRAMEWORK = props.getProperty("checkerframework.version", "3.48.1");
+        }
+
         @Parameter(defaultValue = "cq.checkerframework.versions.checkerFramework")
-        private String checkerFramework = "3.48.1";
+        private String checkerFramework = DEFAULT_CHECKER_FRAMEWORK;
     }
 }

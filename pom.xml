@@ -30,6 +30,9 @@
 
         <asciitable.version>0.3.2</asciitable.version>
         <checkstyle.version>12.1.2</checkstyle.version>
+        <checker-framework.version>3.53.0</checker-framework.version>
+        <error-prone.version>2.47.0</error-prone.version>
+        <nullaway.version>0.13.1</nullaway.version>
         <checker-qual.version>3.53.1</checker-qual.version>
         <commons-codec.version>1.21.0</commons-codec.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
@@ -153,6 +156,26 @@
                 <groupId>org.checkerframework</groupId>
                 <artifactId>checker-qual</artifactId>
                 <version>${checker-qual.version}</version>
+            </dependency>
+            <!-- Declared for Dependabot version tracking; used as annotation processor paths by CheckerFrameworkStep -->
+            <dependency>
+                <groupId>org.checkerframework</groupId>
+                <artifactId>checker</artifactId>
+                <version>${checker-framework.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- Declared for Dependabot version tracking; used as annotation processor paths by ErrorProneStep -->
+            <dependency>
+                <groupId>com.google.errorprone</groupId>
+                <artifactId>error_prone_core</artifactId>
+                <version>${error-prone.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.uber.nullaway</groupId>
+                <artifactId>nullaway</artifactId>
+                <version>${nullaway.version}</version>
+                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -415,6 +438,12 @@
     <url>https://github.com/finoid/codequality-maven-plugin</url>
 
     <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
