@@ -23,6 +23,7 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.jspecify.annotations.Nullable;
 
 import javax.inject.Inject;
+import java.io.File;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.FileNotFoundException;
@@ -81,6 +82,12 @@ public class MojoLogDecoratorExecutionListener implements MojoExecutionListener 
             final LogLevel stepLogLevel = ProjectUtils.stepLogLevelOrFallback(mavenSession, LogLevel.ERROR);
 
             final Path outputFilePath = targetOutputFilePath(project.getBuild().getDirectory(), nullableOutputFileName);
+
+            // Ensure parent directories exist
+            final File parent = outputFilePath.toFile().getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs(); // creates all missing directories
+            }
 
             final Logger defaultLoggerForMojo = loggerManager.getLoggerForComponent(event.getExecution().getMojoDescriptor().getImplementation());
 

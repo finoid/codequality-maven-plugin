@@ -2,8 +2,8 @@ io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogPa
   [
     {
       "columnNumber" : 29,
-      "description" : "@MustCall method close may not have been invoked on SpringApplication.run(AmlApplication.class, args) or any of its aliases.",
-      "fingerprint" : "488225c2092509904a1e0fce4a9181a99a74603b417dab952efb205db72521f3",
+      "description" : "@MustCall method close may not have been invoked on SpringApplication.run(AmlApplication.class, args) or any of its aliases.\n  The type of object is: org.springframework.context.ConfigurableApplicationContext.\n  Reason for going out of scope: regular method exit",
+      "fingerprint" : "c869ecc1092f0a4e5e3cf2a1ebd4170a0b981a1d72bb2e6487f1cc26a174c452",
       "fullPath" : "***MASKED***",
       "line" : 10,
       "relativePath" : "src/main/java/io/github/finoid/aml/AmlApplication.java",
@@ -24,8 +24,8 @@ io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogPa
     },
     {
       "columnNumber" : 25,
-      "description" : "@MustCall method close may not have been invoked on targetStream or any of its aliases.",
-      "fingerprint" : "227c1edd0ba36dbf78a8dcd900590e323c10a3c06a31c95d9d761696ba00b461",
+      "description" : "@MustCall method close may not have been invoked on targetStream or any of its aliases.\n  The type of object is: java.io.InputStream.\n  Reason for going out of scope: regular method exit",
+      "fingerprint" : "bbf1ae34a0ca56f797ed26d8a5ed145260f4be3469d29c07cfde10c13e71cae7",
       "fullPath" : "***MASKED***",
       "line" : 70,
       "relativePath" : "src/main/java/io/github/finoid/aml/service/DeletionSignalService.java",
@@ -35,8 +35,8 @@ io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogPa
     },
     {
       "columnNumber" : 28,
-      "description" : "@MustCall method close may not have been invoked on inputStream or any of its aliases.",
-      "fingerprint" : "796f84c5642ec535e37bd2f31b7a16b11da171e01feb3d37449198d30ac6c221",
+      "description" : "@MustCall method close may not have been invoked on inputStream or any of its aliases.\n  The type of object is: java.io.InputStream.\n  Reason for going out of scope: regular method exit",
+      "fingerprint" : "8c2bbc9cf9139cc7c562e53788799019b41256f63b5f2efe07bcc4993a05198e",
       "fullPath" : "***MASKED***",
       "line" : 104,
       "relativePath" : "src/main/java/io/github/finoid/aml/clients/ftp/SFTPClient.java",
@@ -46,8 +46,8 @@ io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogPa
     },
     {
       "columnNumber" : 34,
-      "description" : "@MustCall method close may not have been invoked on client or any of its aliases.",
-      "fingerprint" : "41c3cced2a947f267bed87301cf6968b44663df3aaa7ffc6df8af81b423f65b9",
+      "description" : "@MustCall method close may not have been invoked on client or any of its aliases.\n  The type of object is: org.apache.hc.client5.http.impl.classic.CloseableHttpClient.\n  Reason for going out of scope: regular method exit",
+      "fingerprint" : "3951cde8f29e848908377d89397a8dc821533ceb3eaf9e34a01fa7d84dee3786",
       "fullPath" : "***MASKED***",
       "line" : 33,
       "relativePath" : "src/main/java/io/github/finoid/aml/config/GetRelationsConfiguration.java",
@@ -57,8 +57,8 @@ io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogPa
     },
     {
       "columnNumber" : 34,
-      "description" : "@MustCall method close may not have been invoked on client or any of its aliases.",
-      "fingerprint" : "2e73121c6b35a5d884cbca0751286e9612d12aad4c1853928d963ecd366f93af",
+      "description" : "@MustCall method close may not have been invoked on client or any of its aliases.\n  The type of object is: org.apache.hc.client5.http.impl.classic.CloseableHttpClient.\n  Reason for going out of scope: regular method exit",
+      "fingerprint" : "5de837298de2eae4a9422503b0f5b7f4f478257c75438ff52bee7e73e059a6cc",
       "fullPath" : "***MASKED***",
       "line" : 33,
       "relativePath" : "src/main/java/io/github/finoid/aml/config/PartRepresentativesConfiguration.java",
@@ -68,8 +68,8 @@ io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogPa
     },
     {
       "columnNumber" : 34,
-      "description" : "@MustCall method close may not have been invoked on client or any of its aliases.",
-      "fingerprint" : "a3012b54988177fb6ce15e56b0b7a491d46f93784346fe4bbef0e004d4385132",
+      "description" : "@MustCall method close may not have been invoked on client or any of its aliases.\n  The type of object is: org.apache.hc.client5.http.impl.classic.CloseableHttpClient.\n  Reason for going out of scope: regular method exit",
+      "fingerprint" : "158f7caf27c3514ae5713ad30fa52cbc07120e312bae1ef247b969ea7be61a99",
       "fullPath" : "***MASKED***",
       "line" : 33,
       "relativePath" : "src/main/java/io/github/finoid/aml/config/RiskClassConfiguration.java",
@@ -90,8 +90,8 @@ io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogPa
     },
     {
       "columnNumber" : 21,
-      "description" : "Could not infer type arguments for Arrays.stream",
-      "fingerprint" : "1f4c4ae4a798a1ed7e4f0484873241546c366aec6119b7d2dad8f51144a21a7b",
+      "description" : "Could not infer type arguments for Arrays.stream\n  unsatisfiable constraint: @MustCall(\"close\") Closeable <: @MustCall Object",
+      "fingerprint" : "6ccd7bb014ad2a9d4f42a29042dbcc6832739e9552e004e27b16607a32f8dc04",
       "fullPath" : "***MASKED***",
       "line" : 43,
       "relativePath" : "src/main/java/io/github/finoid/aml/utils/IOUtils.java",

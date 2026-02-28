@@ -23,9 +23,10 @@ import java.util.regex.Pattern;
 public class CheckerFrameworkViolationLogParser implements ViolationLogParser {
     public static final Pattern PART_VIOLATION_PATTERN = Pattern.compile("^(.*):(\\[\\d+,\\d+\\]).*(\\[.*\\])");
     public static final Pattern VIOLATION_PATTERN =
-        Pattern.compile("^(?<path>.*):\\[(?<line>\\d+),(?<column>\\d+)\\].*\\[(?<rule>.*)\\] (?<description>.*)$");
+        Pattern.compile("^(?<path>.*):\\[(?<line>\\d+),(?<column>\\d+)\\].*\\[(?<rule>.*)\\] (?<description>(?s).*)$");
 
     private static final Logger LOGGER = new ConsoleLogger(1, "console");
+    private static final int READ_AHEAD_LIMIT = 8 * 1024;
 
     private final ViolationConverter violationConverter;
 
@@ -46,7 +47,7 @@ public class CheckerFrameworkViolationLogParser implements ViolationLogParser {
                     continue;
                 }
 
-                parseViolation(nullableLine)
+                parseViolation(nullableLine, reader)
                     .ifPresent(violations::add);
             }
 
@@ -56,15 +57,25 @@ public class CheckerFrameworkViolationLogParser implements ViolationLogParser {
         }
     }
 
-    private Optional<Violation> parseViolation(final String currentLine) {
-        final Matcher violationMatcher = VIOLATION_PATTERN.matcher(currentLine);
-        if (!violationMatcher.find()) {
-            LOGGER.warn("Unexpected checker framework log. Log: " + currentLine);
+    private Optional<Violation> parseViolation(final String currentLine, final BufferedReader reader) throws IOException {
+        final StringBuilder checkerFrameworkViolationBuffer = new StringBuilder(currentLine);
 
-            return Optional.empty();
+        while (true) {
+            reader.mark(READ_AHEAD_LIMIT);
+            final String peakAhead = reader.readLine();
+            if (peakAhead != null && peakAhead.startsWith("  ")) {
+                checkerFrameworkViolationBuffer
+                    .append(System.lineSeparator())
+                    .append(peakAhead);
+            } else {
+                if (peakAhead != null) {
+                    reader.reset();
+                }
+                break;
+            }
         }
 
-        return violationOf(currentLine);
+        return violationOf(checkerFrameworkViolationBuffer.toString());
     }
 
     private Optional<Violation> violationOf(final String checkerFrameworkViolationLines) {

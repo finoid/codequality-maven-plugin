@@ -182,7 +182,7 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
         try (final InputStream targetStream = new FileInputStream(checkerFrameworkOutputFilePath)) {
             return checkerFrameworkViolationLogParser.parse(targetStream);
         } catch (final IOException e) {
-            log.warn("No checker framework file found. Please register the plugin as a extension");
+            log.warn("No checker framework file found. Please register the plugin as an extension");
 
             return Collections.emptyList();
         }
@@ -271,8 +271,11 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
                 for (final MavenProject mavenProject : allProjects) {
                     final String finalName = (mavenProject.getBuild() != null) ? mavenProject.getBuild().getFinalName() : null;
 
-                    if (finalName != null && entry.contains(finalName)) {
+                    final String artifactNameAndVersion = mavenProject.getArtifact().getArtifactId() + "-" + mavenProject.getArtifact().getVersion() + ".jar";
+
+                    if (finalName != null && entry.contains(artifactNameAndVersion)) {
                         final String replacement = Paths.get(mavenProject.getBuild().getDirectory(), CHECKER_FRAMEWORK_CLASSES_DIR).toString();
+
                         it.set(replacement);
                         break;
                     }
