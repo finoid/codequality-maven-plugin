@@ -29,7 +29,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <asciitable.version>0.3.2</asciitable.version>
-        <checkstyle.version>12.1.2</checkstyle.version>
+        <checkstyle.version>13.4.1</checkstyle.version>
         <checker-framework.version>4.0.0</checker-framework.version>
         <error-prone.version>2.49.0</error-prone.version>
         <nullaway.version>0.13.4</nullaway.version>
