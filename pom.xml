@@ -31,7 +31,7 @@
         <asciitable.version>0.3.2</asciitable.version>
         <checkstyle.version>12.1.2</checkstyle.version>
         <checker-framework.version>4.2.0</checker-framework.version>
-        <error-prone.version>2.49.0</error-prone.version>
+        <error-prone.version>2.50.0</error-prone.version>
         <nullaway.version>0.13.6</nullaway.version>
         <checker-qual.version>4.2.0</checker-qual.version>
         <commons-codec.version>1.22.0</commons-codec.version>
