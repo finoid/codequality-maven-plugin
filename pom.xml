@@ -72,7 +72,7 @@
         <junit-jupiter.version>6.1.0</junit-jupiter.version>
         <json-path.version>3.0.0</json-path.version>
         <mockito-junit-jupiter.version>5.23.0</mockito-junit-jupiter.version>
-        <datafaker.version>2.6.0</datafaker.version>
+        <datafaker.version>2.7.0</datafaker.version>
 
         <!-- Code quality feature flags and configuration -->
         <code-quality.feature.checker-framework>true</code-quality.feature.checker-framework>
