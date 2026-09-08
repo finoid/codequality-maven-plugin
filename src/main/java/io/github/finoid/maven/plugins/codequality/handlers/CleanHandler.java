@@ -1,5 +1,6 @@
 package io.github.finoid.maven.plugins.codequality.handlers;
 
+import io.github.finoid.maven.plugins.codequality.ExecutionContext;
 import io.github.finoid.maven.plugins.codequality.configuration.CodeQualityConfiguration;
 import io.github.finoid.maven.plugins.codequality.exceptions.CodeQualityException;
 import io.github.finoid.maven.plugins.codequality.step.CleanContext;
@@ -10,8 +11,6 @@ import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
-import org.apache.maven.plugin.logging.Log;
-import org.apache.maven.project.MavenProject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,19 +27,16 @@ import static org.twdata.maven.mojoexecutor.MojoExecutor.name;
 @Singleton
 public class CleanHandler {
     private final MavenSession session;
-    private final MavenProject project;
     private final BuildPluginManager pluginManager;
     private final CodeQualityConfiguration codeQualityConfiguration;
 
     @Inject
     public CleanHandler(
         final MavenSession session,
-        final MavenProject project,
         final BuildPluginManager pluginManager,
         final CodeQualityConfiguration codeQualityConfiguration
     ) {
         this.session = Precondition.nonNull(session, "MavenSession shouldn't be null");
-        this.project = Precondition.nonNull(project, "MavenProject shouldn't be null");
         this.pluginManager = Precondition.nonNull(pluginManager, "BuildPluginManager shouldn't be null");
         this.codeQualityConfiguration = Precondition.nonNull(codeQualityConfiguration, "CodeQualityConfiguration shouldn't be null");
     }
@@ -48,27 +44,27 @@ public class CleanHandler {
     /**
      * Cleans the target directory for the provided {@link Step}.
      *
-     * @param step the step
-     * @param log  the mojo logger
+     * @param step    the step
+     * @param context the context of the current mojo execution
      * @throws CodeQualityException if an error occurred
      * @throws NullPointerException if the step is null
      */
-    public void handle(final Step<?> step, final Log log) {
+    public void handle(final Step<?> step, final ExecutionContext context) {
         Objects.requireNonNull(step);
 
         try {
             switch (step.getCleanContext().getType()) {
-                case ALL -> executeClean(step, log);
-                case DIRECTORY -> executeCleanDirectory(step, log);
-                default -> log.info("Skip cleaning for " + step.type());
+                case ALL -> executeClean(step, context);
+                case DIRECTORY -> executeCleanDirectory(step, context);
+                default -> context.getLog().info("Skip cleaning for " + step.type());
             }
         } catch (final MojoExecutionException | IllegalStateException e) {
             throw new CodeQualityException("Error during cleaning. Cause: " + e.getMessage(), e);
         }
     }
 
-    private void executeClean(final Step<?> step, final Log log) throws MojoExecutionException {
-        log.info("Cleaning up for " + step.type());
+    private void executeClean(final Step<?> step, final ExecutionContext context) throws MojoExecutionException {
+        context.getLog().info("Cleaning up for " + step.type());
 
         final PluginDescriptor descriptor =
             PluginUtils.pluginDescriptor("org.apache.maven.plugins", "maven-clean-plugin", codeQualityConfiguration.getVersions().getMavenClean());
@@ -80,12 +76,12 @@ public class CleanHandler {
                 element(name("failOnError"), "true"),
                 element(name("followSymLinks"), "false")
             ),
-            executionEnvironment(project, session, pluginManager)
+            executionEnvironment(context.getProject(), session, pluginManager)
         );
     }
 
-    private void executeCleanDirectory(final Step<?> step, final Log log) throws MojoExecutionException {
-        log.info("Cleaning up directory for " + step.type());
+    private void executeCleanDirectory(final Step<?> step, final ExecutionContext context) throws MojoExecutionException {
+        context.getLog().info("Cleaning up directory for " + step.type());
 
         final PluginDescriptor descriptor =
             PluginUtils.pluginDescriptor("org.apache.maven.plugins", "maven-antrun-plugin", codeQualityConfiguration.getVersions().getMavenAntRun());
@@ -110,7 +106,7 @@ public class CleanHandler {
                     )
                 )
             ),
-            executionEnvironment(project, session, pluginManager)
+            executionEnvironment(context.getProject(), session, pluginManager)
         );
     }
 }

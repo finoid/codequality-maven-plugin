@@ -1,8 +1,9 @@
 package io.github.finoid.maven.plugins.codequality.storage;
 
-import org.apache.maven.execution.MavenSession;
 import io.github.finoid.maven.plugins.codequality.step.ProjectStepResults;
 import io.github.finoid.maven.plugins.codequality.step.StepResults;
+import org.apache.maven.execution.MavenSession;
+import org.apache.maven.project.MavenProject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,12 +21,13 @@ public class StepResultsRepository {
     }
 
     /**
-     * Stores the given {@link ProjectStepResults} for the current Maven project.
+     * Stores the given {@link ProjectStepResults} for the given Maven project.
      *
+     * @param project            the project the results were produced for
      * @param projectStepResults the step results to store
      */
-    public void store(final ProjectStepResults projectStepResults) {
-        sessionRepository.put(projectStorageKey(session.getCurrentProject().getName()), projectStepResults);
+    public void store(final MavenProject project, final ProjectStepResults projectStepResults) {
+        sessionRepository.put(projectStorageKey(project), projectStepResults);
     }
 
     /**
@@ -35,7 +37,7 @@ public class StepResultsRepository {
      */
     public StepResults getAll() {
         final List<ProjectStepResults> results = session.getAllProjects().stream()
-            .map(it -> sessionRepository.get(projectStorageKey(it.getName())))
+            .map(it -> sessionRepository.get(projectStorageKey(it)))
             .filter(ProjectStepResults.class::isInstance)
             .map(ProjectStepResults.class::cast)
             .toList();
@@ -43,7 +45,11 @@ public class StepResultsRepository {
         return StepResults.ofResults(results);
     }
 
-    private static String projectStorageKey(final String projectName) {
-        return "step_result_" + projectName;
+    /**
+     * Keyed by the project id - {@code groupId:artifactId:packaging:version} - rather than by the project name, which
+     * is neither required to be set nor to be unique within a reactor.
+     */
+    private static String projectStorageKey(final MavenProject project) {
+        return "step_result_" + project.getId();
     }
 }
