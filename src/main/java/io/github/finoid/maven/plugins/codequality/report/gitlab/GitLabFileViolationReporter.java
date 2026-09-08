@@ -3,6 +3,7 @@ package io.github.finoid.maven.plugins.codequality.report.gitlab;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import io.github.finoid.maven.plugins.codequality.ExecutionContext;
 import io.github.finoid.maven.plugins.codequality.exceptions.ReportRendererException;
 import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
@@ -10,14 +11,14 @@ import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.report.ViolationReporter;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import io.github.finoid.maven.plugins.codequality.util.ProjectUtils;
-import org.apache.maven.execution.MavenSession;
-import org.apache.maven.plugin.logging.Log;
 
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,28 +40,32 @@ public class GitLabFileViolationReporter implements ViolationReporter {
     public static final String NAME = "GITLAB_FILE_VIOLATION";
 
     private final ObjectMapper objectMapper;
-    private final MavenSession mavenSession;
 
     @Inject
-    public GitLabFileViolationReporter(final MavenSession mavenSession) {
-        this(mavenSession, defaultObjectMapper());
+    public GitLabFileViolationReporter() {
+        this(defaultObjectMapper());
     }
 
-    public GitLabFileViolationReporter(final MavenSession mavenSession, final ObjectMapper objectMapper) {
-        this.mavenSession = Precondition.nonNull(mavenSession, "MavenSession shouldn't be null");
+    public GitLabFileViolationReporter(final ObjectMapper objectMapper) {
         this.objectMapper = Precondition.nonNull(objectMapper, "ObjectMapper shouldn't be null");
     }
 
     @Override
-    public void report(final Log log, final Violations violations) {
+    public void report(final ExecutionContext context, final Violations violations) {
         final List<GitLabViolation> gitLabViolations = violations.all().stream()
             .map(GitLabFileViolationReporter::gitLabViolationOf)
             .toList();
 
-        final String targetOutputFile = ProjectUtils.getProjectBuildDirectory(mavenSession) + "/gitlab-violations.json";
+        final String targetOutputFile = ProjectUtils.getProjectBuildDirectory(context.getProject()) + "/gitlab-violations.json";
 
-        try (final OutputStream outputStream = new FileOutputStream(targetOutputFile)) {
-            objectMapper.writeValue(outputStream, gitLabViolations);
+        try {
+            // The report is written to the build directory of the reactor root, which - for an aggregator without
+            // sources of its own - is not necessarily created by the build itself
+            Files.createDirectories(Paths.get(targetOutputFile).getParent());
+
+            try (final OutputStream outputStream = new FileOutputStream(targetOutputFile)) {
+                objectMapper.writeValue(outputStream, gitLabViolations);
+            }
         } catch (final Exception e) {
             throw new ReportRendererException("Error during generation of code quality report", e);
         }

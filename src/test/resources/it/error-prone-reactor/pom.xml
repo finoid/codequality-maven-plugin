@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.finoid.it</groupId>
+    <artifactId>error-prone-reactor</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>error-prone-reactor</name>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Overridden by the integration test with the version under test -->
+        <cq.plugin.version>main</cq.plugin.version>
+    </properties>
+
+    <modules>
+        <!-- module-b depends on module-a, module-c is independent of both, so a parallel build
+             has to schedule the modules on more than one thread -->
+        <module>module-a</module>
+        <module>module-b</module>
+        <module>module-c</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.finoid</groupId>
+                <artifactId>codequality-maven-plugin</artifactId>
+                <version>${cq.plugin.version}</version>
+                <!-- Error Prone only reports anything when the plugin is registered as an extension, the output of
+                     the forked compiler is captured by a MojoExecutionListener -->
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>code-quality</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>code-quality</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <codeQuality>
+                        <!-- Only Error Prone, so the assertions of the test are not diluted by the findings of the
+                             other analyzers -->
+                        <checkstyle>
+                            <enabled>false</enabled>
+                        </checkstyle>
+                        <errorProne>
+                            <enabled>true</enabled>
+                        </errorProne>
+                        <checkerFramework>
+                            <enabled>false</enabled>
+                        </checkerFramework>
+                    </codeQuality>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

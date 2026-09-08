@@ -22,18 +22,18 @@
     <packaging>maven-plugin</packaging>
 
     <properties>
-        <java.version>17</java.version>
-        <maven.compiler.target>17</maven.compiler.target>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.release>17</maven.compiler.release>
+        <java.version>21</java.version>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <asciitable.version>0.3.2</asciitable.version>
         <checkstyle.version>12.1.2</checkstyle.version>
-        <checker-framework.version>4.2.2</checker-framework.version>
+        <checker-framework.version>4.2.3</checker-framework.version>
         <error-prone.version>2.50.0</error-prone.version>
-        <nullaway.version>0.14.0</nullaway.version>
-        <checker-qual.version>4.2.2</checker-qual.version>
+        <nullaway.version>0.14.1</nullaway.version>
+        <checker-qual.version>4.2.3</checker-qual.version>
         <commons-codec.version>1.22.1</commons-codec.version>
         <commons-lang3.version>3.20.0</commons-lang3.version>
         <commons-logging.version>1.4.0</commons-logging.version>
@@ -48,8 +48,10 @@
         <junit-jupiter-api.version>5.11.4</junit-jupiter-api.version>
         <json-path.version>3.0.0</json-path.version>
         <jspecify.version>1.0.1</jspecify.version>
-        <lombok.version>1.18.46</lombok.version>
+        <lombok.version>1.18.48</lombok.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
+        <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
+        <maven-install-plugin.version>3.1.4</maven-install-plugin.version>
         <maven-javadoc-plugin.version>3.7.0</maven-javadoc-plugin.version>
         <maven-plugin-annotations.version>3.15.2</maven-plugin-annotations.version>
         <maven-plugin-plugin.version>3.15.2</maven-plugin-plugin.version>
@@ -154,6 +156,11 @@
                 <groupId>org.apache.maven.doxia</groupId>
                 <artifactId>doxia-core</artifactId>
                 <version>${doxia.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>${jspecify.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.checkerframework</groupId>
@@ -531,6 +538,42 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+            <!-- The integration tests run the plugin against a real reactor, which requires it to be resolvable
+                 from the local repository before they start -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>${maven-install-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>install-for-integration-tests</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>install</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <systemPropertyVariables>
+                        <!-- The Maven distribution the integration tests fork, and the version of the plugin they run -->
+                        <maven.home>${maven.home}</maven.home>
+                        <it.plugin.version>${project.version}</it.plugin.version>
+                    </systemPropertyVariables>
+                </configuration>
             </plugin>
         </plugins>
     </build>

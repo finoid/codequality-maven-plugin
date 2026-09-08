@@ -28,6 +28,19 @@ reports can help developers identify and address issues early in the build proce
 | **`ConsoleTableViolationReporter`** | Logs code quality violations to the Maven console using tables for easy visibility during builds.                                                                                                          |
 | **`GitLabFileViolationReporter`**   | Serializes violations into a JSON file formatted for GitLab's [Code Quality widget](https://docs.gitlab.com/ee/user/project/merge_requests/code_quality.html), enabling inline feedback in merge requests. |
 
+## Parallel builds
+
+The `code-quality` goal is marked as thread safe, so a reactor can be built in parallel (`mvn -T ...`) without Maven
+falling back to serializing the modules, and without warning about the goal.
+
+The results of every module are collected and reported once, by the module which finishes last. In a parallel build that
+is not necessarily the last module of the build order, so a module which is still running never loses its violations
+from the aggregated report.
+
+Note that the Checkstyle analysis itself runs one module at a time, even in a parallel build. Its executor is shared and
+reconfigures the resolution of the configuration, header and suppression files for every module it is given. The
+compiler based analyzers - Error Prone and the Checker Framework - keep running in parallel.
+
 ## Installation
 
 You can use the Code Quality Maven Plugin in one of two ways:
