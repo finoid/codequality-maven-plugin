@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,6 +48,7 @@ import java.util.stream.Stream;
 class CodeQualityReactorIT {
     private static final String CHECKSTYLE_FIXTURE = "it/multi-module-reactor";
     private static final String ERROR_PRONE_FIXTURE = "it/error-prone-reactor";
+    private static final String CHECKER_FRAMEWORK_FIXTURE = "it/checker-framework-reactor";
 
     private static final Map<String, String> EXPECTED_CHECKSTYLE_VIOLATIONS_BY_PATH = Map.of(
         "module-a/src/main/java/it/alpha/Alpha.java", "Unused import - java.util.List.",
@@ -53,11 +56,13 @@ class CodeQualityReactorIT {
         "module-c/src/main/java/it/gamma/Gamma.java", "Literal Strings should be compared using equals(), not '=='."
     );
 
-    private static final Set<String> EXPECTED_ERROR_PRONE_PATHS = Set.of(
+    private static final Set<String> EXPECTED_COMPILER_STEP_PATHS = Set.of(
         "module-a/src/main/java/it/alpha/Alpha.java",
         "module-b/src/main/java/it/beta/Beta.java",
         "module-c/src/main/java/it/gamma/Gamma.java"
     );
+
+    private static final List<String> MODULES = List.of("module-a", "module-b", "module-c");
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
@@ -145,21 +150,79 @@ class CodeQualityReactorIT {
 
         final List<ReportedViolation> violations = aggregatedViolations(basedir);
 
-        Assertions.assertEquals(EXPECTED_ERROR_PRONE_PATHS, pathsOf(violations),
+        Assertions.assertEquals(EXPECTED_COMPILER_STEP_PATHS, pathsOf(violations),
             () -> "Every module is expected to contribute its own Error Prone violations, but got " + violations);
 
         // Every module has to have been analyzed by Error Prone, rather than a single module three times over
         violations.forEach(violation -> Assertions.assertTrue(violation.description().startsWith("ErrorProne: "),
             () -> "Unexpected non Error Prone violation: " + violation));
 
-        // The log file of every module has to have been written next to that module, not next to a pinned one
-        for (final String module : List.of("module-a", "module-b", "module-c")) {
-            final Path log = basedir.resolve(module + "/target/errorprone-" + module + ".txt");
+        assertPerModuleOutput(basedir, "errorprone");
+        assertReportedOnce(basedir);
+    }
 
-            Assertions.assertTrue(Files.isRegularFile(log), () -> "Missing Error Prone output of " + module + ": " + log);
+    /**
+     * The Checker Framework step forks the compiler exactly like Error Prone does, and reads its findings back from the
+     * same kind of per module log file, so it is prone to the same cross module mix ups.
+     */
+    @Test
+    @DisplayName("A parallel built reactor reports the Checker Framework violations of every module")
+    void givenCheckerFrameworkReactor_whenVerifyInParallel_thenViolationsOfEveryModuleAreReported() throws Exception {
+        // Not under this project's own target directory, see copyFixtureOutsideBuildDirectory
+        final Path basedir = copyFixtureOutsideBuildDirectory(CHECKER_FRAMEWORK_FIXTURE, "checker-framework-parallel");
+
+        final Verifier verifier = verifier(basedir);
+        verifier.addCliOption("-T");
+        verifier.addCliOption("4");
+        // Keeps checker-qual, which the step requires on the class path, in step with the checker the plugin runs
+        verifier.addCliOption("-Dcq.it.checker.version=" + checkerFrameworkVersion());
+        verifier.executeGoal("verify");
+        verifier.resetStreams();
+
+        final List<ReportedViolation> violations = aggregatedViolations(basedir);
+
+        Assertions.assertEquals(EXPECTED_COMPILER_STEP_PATHS, pathsOf(violations),
+            () -> "Every module is expected to contribute its own Checker Framework violations, but got " + violations);
+
+        violations.forEach(violation -> Assertions.assertTrue(violation.description().startsWith("CheckerFramework: "),
+            () -> "Unexpected non Checker Framework violation: " + violation));
+
+        assertPerModuleOutput(basedir, "checkerframework");
+        assertReportedOnce(basedir);
+
+        // Only on success, a failed run is worth keeping around to look at
+        deleteRecursively(basedir.getParent());
+    }
+
+    /**
+     * Asserts that the output of the forked compiler of every module was written next to that module, rather than next
+     * to whichever module a pinned project happened to be.
+     */
+    private void assertPerModuleOutput(final Path basedir, final String prefix) {
+        for (final String module : MODULES) {
+            final Path log = basedir.resolve(module + "/target/" + prefix + "-" + module + ".txt");
+
+            Assertions.assertTrue(Files.isRegularFile(log), () -> "Missing analyzer output of " + module + ": " + log);
+        }
+    }
+
+    /**
+     * The Checker Framework version the plugin defaults to, read from the properties the build filters it into.
+     */
+    private static String checkerFrameworkVersion() throws IOException {
+        final Properties properties = new Properties();
+
+        try (InputStream stream = CodeQualityReactorIT.class.getResourceAsStream("/checkerframework-versions.properties")) {
+            Assertions.assertNotNull(stream, "Missing checkerframework-versions.properties on the test class path");
+
+            properties.load(stream);
         }
 
-        assertReportedOnce(basedir);
+        final String version = properties.getProperty("checkerframework.version");
+
+        Assertions.assertNotNull(version, "Missing checkerframework.version property");
+
+        return version;
     }
 
     private Verifier verifier(final Path basedir) throws VerificationException {
@@ -235,13 +298,25 @@ class CodeQualityReactorIT {
     }
 
     private Path copyFixture(final String fixture, final String name) throws IOException {
+        return copyFixtureTo(fixture, Paths.get(System.getProperty("basedir", ""), "target", "it", name).toAbsolutePath());
+    }
+
+    /**
+     * Copies a fixture to a working directory outside the build directory of this project.
+     * <p>
+     * The Checker Framework step passes {@code -AskipFiles=/target/} to keep generated sources out of the analysis, and
+     * that pattern is matched against the whole path of every file. A fixture below this project's own {@code target}
+     * directory would therefore be skipped in its entirety and the analyzer would report nothing at all.
+     */
+    private Path copyFixtureOutsideBuildDirectory(final String fixture, final String name) throws IOException {
+        return copyFixtureTo(fixture, Files.createTempDirectory("codequality-it-").resolve(name));
+    }
+
+    private Path copyFixtureTo(final String fixture, final Path target) throws IOException {
         final Path fixtureRoot = Paths.get(System.getProperty("basedir", ""), "target", "test-classes", fixture)
             .toAbsolutePath();
 
         Assertions.assertTrue(Files.isDirectory(fixtureRoot), () -> "Missing integration test fixture: " + fixtureRoot);
-
-        final Path target = Paths.get(System.getProperty("basedir", ""), "target", "it", name)
-            .toAbsolutePath();
 
         deleteRecursively(target);
 

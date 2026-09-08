@@ -8,6 +8,7 @@ import io.github.finoid.maven.plugins.codequality.exceptions.CodeQualityExceptio
 import io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogParser;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.util.CollectorUtils;
+import io.github.finoid.maven.plugins.codequality.util.ExceptionUtils;
 import io.github.finoid.maven.plugins.codequality.util.MojoUtils.ElementUtils;
 import io.github.finoid.maven.plugins.codequality.util.MojoUtils.PluginUtils;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
@@ -142,7 +143,12 @@ public class CheckerFrameworkStep implements Step<CheckerFrameworkConfiguration>
 
             return parseViolations(context);
         } catch (final Exception e) {
-            throw new CodeQualityException("Error during execution of CheckerFramework step", e);
+            // The forked compiler reports through its own log, which the plugin redirects to a file, so the reason a
+            // step failed is regularly only in that file. Both the file and the deepest cause are named here, the
+            // wrapping exceptions of a forked mojo say little on their own.
+            throw new CodeQualityException(String.format(
+                "Error during execution of CheckerFramework step. Cause: %s. The output of the forked compiler was captured in %s",
+                ExceptionUtils.rootCauseMessage(e), checkerFrameworkOutputFilePath(currentProject)), e);
         }
     }
 
