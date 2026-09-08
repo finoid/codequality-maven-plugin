@@ -6,7 +6,7 @@ import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import lombok.SneakyThrows;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.execution.MavenSession;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,17 +18,27 @@ import java.security.MessageDigest;
 import java.util.Locale;
 import java.util.regex.Matcher;
 
+/**
+ * Converts the raw output of the analyzers into {@link Violation violations}.
+ * <p>
+ * Violation paths are relativized against the root of the reactor rather than against the module they were found in.
+ * The results of every module end up in a single report, so a module relative path would be ambiguous, and the diff
+ * coverage filter matches the paths against a git diff, whose paths are relative to the root of the repository.
+ * <p>
+ * Only reactor wide state - identical for, and shared by, every builder thread - is read from the session, which makes
+ * the converter safe to share between the modules of a parallel build.
+ */
 @Singleton
 public class ViolationConverter {
-    private final MavenProject project;
+    private final MavenSession session;
 
     @Inject
-    public ViolationConverter(final MavenProject project) {
-        this.project = Precondition.nonNull(project, "MavenProject shouldn't be null");
+    public ViolationConverter(final MavenSession session) {
+        this.session = Precondition.nonNull(session, "MavenSession shouldn't be null");
     }
 
     public Violation ofAuditEvent(final AuditEvent auditEvent) {
-        final File repositoryRoot = project.getBasedir();
+        final File repositoryRoot = repositoryRoot();
 
         return Violation.builder()
             .tool("Checkstyle")
@@ -44,7 +54,7 @@ public class ViolationConverter {
     }
 
     public Violation ofErrorProneViolationMatcher(final Matcher violationMatcher) {
-        final File repositoryRoot = project.getBasedir();
+        final File repositoryRoot = repositoryRoot();
 
         final String columnNumber = violationMatcher.group("column");
         final String absoluteFilePath = violationMatcher.group("path");
@@ -68,7 +78,7 @@ public class ViolationConverter {
     }
 
     public Violation ofCheckerFrameworkViolationMatcher(final Matcher violationMatcher) {
-        final File repositoryRoot = project.getBasedir();
+        final File repositoryRoot = repositoryRoot();
 
         final String columnNumber = violationMatcher.group("column");
         final String absoluteFilePath = violationMatcher.group("path");
@@ -87,6 +97,22 @@ public class ViolationConverter {
             .columnNumber(Integer.valueOf(columnNumber))
             .rule(rule)
             .build();
+    }
+
+    /**
+     * The directory the reported paths are relative to, being the directory Maven determined to be the root of the
+     * multi module project, and the base directory of the top level project of the reactor when Maven could not.
+     */
+    private File repositoryRoot() {
+        final File multiModuleProjectDirectory = session.getRequest()
+            .getMultiModuleProjectDirectory();
+
+        if (multiModuleProjectDirectory != null) {
+            return multiModuleProjectDirectory;
+        }
+
+        return session.getTopLevelProject()
+            .getBasedir();
     }
 
     @SneakyThrows
