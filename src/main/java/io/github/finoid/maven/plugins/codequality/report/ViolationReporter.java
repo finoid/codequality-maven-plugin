@@ -1,7 +1,7 @@
 package io.github.finoid.maven.plugins.codequality.report;
 
+import io.github.finoid.maven.plugins.codequality.ExecutionContext;
 import io.github.finoid.maven.plugins.codequality.filter.Violations;
-import org.apache.maven.plugin.logging.Log;
 
 /**
  * A contract for reporting code quality violations to a specified output, such as the console or a file.
@@ -11,12 +11,12 @@ import org.apache.maven.plugin.logging.Log;
  */
 public interface ViolationReporter {
     /**
-     * Reports the results of code quality analysis to the specified Maven log.
+     * Reports the results of code quality analysis.
      *
-     * @param log        the Maven plugin logger used to emit messages
+     * @param context    the context of the mojo execution which aggregates the results of the reactor
      * @param violations the collected violations of all executed code quality steps
      */
-    void report(final Log log, final Violations violations);
+    void report(final ExecutionContext context, final Violations violations);
 
     /**
      * The name of the violation reporter.

@@ -1,5 +1,6 @@
 package io.github.finoid.maven.plugins.codequality.step;
 
+import io.github.finoid.maven.plugins.codequality.ExecutionContext;
 import io.github.finoid.maven.plugins.codequality.configuration.CheckstyleConfiguration;
 import io.github.finoid.maven.plugins.codequality.configuration.CodeQualityConfiguration;
 import io.github.finoid.maven.plugins.codequality.exceptions.CodeQualityException;
@@ -7,7 +8,6 @@ import io.github.finoid.maven.plugins.codequality.factories.CheckstyleExecutorRe
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import lombok.SneakyThrows;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.checkstyle.exec.CheckstyleExecutor;
 import org.apache.maven.plugins.checkstyle.exec.CheckstyleExecutorRequest;
 import org.apache.maven.plugins.checkstyle.exec.CheckstyleResults;
@@ -48,10 +48,11 @@ public class CheckstyleStep implements Step<CheckstyleConfiguration> {
     }
 
     @Override
-    public StepResult execute(final CodeQualityConfiguration codeQualityConfiguration, final CheckstyleConfiguration stepConfiguration, final Log log) {
+    public StepResult execute(final CodeQualityConfiguration codeQualityConfiguration, final CheckstyleConfiguration stepConfiguration,
+                              final ExecutionContext context) {
         try {
-            final StepResult resultMain = executeForEnvironment(stepConfiguration, stepConfiguration.getExecutionMain(), log);
-            final StepResult resultTest = executeForEnvironment(stepConfiguration, stepConfiguration.getExecutionTest(), log);
+            final StepResult resultMain = executeForEnvironment(stepConfiguration, stepConfiguration.getExecutionMain(), context);
+            final StepResult resultTest = executeForEnvironment(stepConfiguration, stepConfiguration.getExecutionTest(), context);
 
             return StepResult.create(StepType.CHECKSTYLE, stepConfiguration.isPermissive(), resultMain.getViolations(), resultTest.getViolations());
         } catch (final Exception e) {
@@ -67,25 +68,25 @@ public class CheckstyleStep implements Step<CheckstyleConfiguration> {
     private StepResult executeForEnvironment(
         final CheckstyleConfiguration configuration,
         final CheckstyleConfiguration.ExecutionEnvironment executionEnvironment,
-        final Log log
+        final ExecutionContext context
     ) {
-        return executeCheckstyle(configuration, executionEnvironment, log);
+        return executeCheckstyle(configuration, executionEnvironment, context);
     }
 
     @SneakyThrows
     private StepResult executeCheckstyle(final CheckstyleConfiguration configuration, final CheckstyleConfiguration.ExecutionEnvironment executionEnvironment,
-                                         final Log log) {
+                                         final ExecutionContext context) {
         if (!executionEnvironment.isEnabled()) {
-            log.info("Skipping Checkstyle Sub Step for " + executionEnvironment);
+            context.getLog().info("Skipping Checkstyle Sub Step for " + executionEnvironment);
 
             return StepResult.create(StepType.CHECKSTYLE, configuration.isPermissive(), Collections.emptyList());
         }
 
-        log.info("Executing Checkstyle Sub Step for " + executionEnvironment.getEnvironment());
+        context.getLog().info("Executing Checkstyle Sub Step for " + executionEnvironment.getEnvironment());
 
-        final CheckstyleExecutorRequest request = checkstyleExecutorRequestFactory.create(configuration, executionEnvironment, log);
+        final CheckstyleExecutorRequest request = checkstyleExecutorRequestFactory.create(configuration, executionEnvironment, context);
 
-        final CheckstyleResults checkstyleResults = checkstyleExecutor.executeCheckstyle(request);
+        final CheckstyleResults checkstyleResults = executeCheckstyle(request);
 
         final List<Violation> violations = checkstyleResults.getFiles()
             .entrySet()
@@ -95,5 +96,20 @@ public class CheckstyleStep implements Step<CheckstyleConfiguration> {
             .toList();
 
         return StepResult.create(StepType.CHECKSTYLE, configuration.isPermissive(), violations);
+    }
+
+    /**
+     * Runs Checkstyle for a single module.
+     * <p>
+     * {@code DefaultCheckstyleExecutor} is a singleton which reconfigures a shared {@code ResourceManager} - the
+     * output directory and the search paths used to resolve the configuration, header and suppression files - for
+     * every request it is given. Concurrent requests would therefore resolve each other's resources, so the executor
+     * is used by one module at a time. Only the Checkstyle analysis itself is serialized, the compiler based steps of
+     * the other modules keep running in parallel.
+     */
+    private CheckstyleResults executeCheckstyle(final CheckstyleExecutorRequest request) throws Exception {
+        synchronized (checkstyleExecutor) {
+            return checkstyleExecutor.executeCheckstyle(request);
+        }
     }
 }

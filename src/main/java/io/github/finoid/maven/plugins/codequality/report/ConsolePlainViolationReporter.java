@@ -1,5 +1,6 @@
 package io.github.finoid.maven.plugins.codequality.report;
 
+import io.github.finoid.maven.plugins.codequality.ExecutionContext;
 import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import io.github.finoid.maven.plugins.codequality.log.ViolationLinkableConsoleLogger;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
@@ -39,11 +40,13 @@ public class ConsolePlainViolationReporter implements ViolationReporter {
      * into permissive and non-permissive categories, and logs each group with formatting
      * and severity-based log levels.
      *
-     * @param log        the Maven plugin log interface
+     * @param context    the context of the current mojo execution
      * @param violations the results of executed code analysis steps containing violations
      */
     @Override
-    public void report(final Log log, final Violations violations) {
+    public void report(final ExecutionContext context, final Violations violations) {
+        final Log log = context.getLog();
+
         logViolationsForType(log, violations.getPermissiveViolations(), PermissiveType.PERMISSIVE);
         logViolationsForType(log, violations.getNonPermissiveViolations(), PermissiveType.NON_PERMISSIVE);
     }

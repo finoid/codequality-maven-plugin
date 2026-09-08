@@ -1,5 +1,6 @@
 package io.github.finoid.maven.plugins.codequality.step;
 
+import io.github.finoid.maven.plugins.codequality.ExecutionContext;
 import io.github.finoid.maven.plugins.codequality.MavenAnnotationProcessorsManager;
 import io.github.finoid.maven.plugins.codequality.configuration.CodeQualityConfiguration;
 import io.github.finoid.maven.plugins.codequality.configuration.ErrorProneConfiguration;
@@ -15,7 +16,6 @@ import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.BuildPluginManager;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
-import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.project.MavenProject;
 import org.twdata.maven.mojoexecutor.MojoExecutor;
 
@@ -52,19 +52,21 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
         + "-XepOpt:NullAway:AnnotatedPackages=%s "
         + "-XepExcludedPaths:%s"; // The maven-compiler-plugin does not like text block
 
-    private final MavenProject project;
+    /**
+     * The root session of the build. Only used for reactor wide state, which is shared by - and identical for - every
+     * builder thread. The module currently being analyzed is taken from the {@link ExecutionContext} instead, see
+     * {@link ExecutionContext} for why.
+     */
     private final MavenSession mavenSession;
     private final BuildPluginManager pluginManager;
     private final ErrorProneViolationLogParser errorProneErrorLogParser;
 
     @Inject
     public ErrorProneStep(
-        final MavenProject project,
         final MavenSession mavenSession,
         final BuildPluginManager pluginManager,
         final ErrorProneViolationLogParser errorProneErrorLogParser
     ) {
-        this.project = Precondition.nonNull(project, "MavenProject shouldn't be null");
         this.mavenSession = Precondition.nonNull(mavenSession, "MavenSession shouldn't be null");
         this.pluginManager = Precondition.nonNull(pluginManager, "BuildPluginManager shouldn't be null");
         this.errorProneErrorLogParser = Precondition.nonNull(errorProneErrorLogParser, "ErrorProneErrorLogParser shouldn't be null");
@@ -81,8 +83,9 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
     }
 
     @Override
-    public StepResult execute(final CodeQualityConfiguration codeQualityConfiguration, final ErrorProneConfiguration stepConfiguration, final Log log) {
-        final List<Violation> violations = executeStep(codeQualityConfiguration, stepConfiguration, log);
+    public StepResult execute(final CodeQualityConfiguration codeQualityConfiguration, final ErrorProneConfiguration stepConfiguration,
+                              final ExecutionContext context) {
+        final List<Violation> violations = executeStep(codeQualityConfiguration, stepConfiguration, context);
 
         return StepResult.create(StepType.ERROR_PRONE, stepConfiguration.isPermissive(), violations);
     }
@@ -93,13 +96,13 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
     }
 
     private List<Violation> executeStep(final CodeQualityConfiguration codeQualityConfiguration, final ErrorProneConfiguration stepConfiguration,
-                                        final Log log) {
+                                        final ExecutionContext context) {
         final PluginDescriptor descriptor =
             PluginUtils.pluginDescriptor("org.apache.maven.plugins", "maven-compiler-plugin", codeQualityConfiguration.getVersions().getMavenCompiler());
 
-        final String javaVersion = PropertyUtils.valueOrFallback(project.getProperties(), "java.version", "21");
+        final MavenProject currentProject = context.getProject();
 
-        final MavenProject currentProject = mavenSession.getCurrentProject();
+        final String javaVersion = PropertyUtils.valueOrFallback(currentProject.getProperties(), "java.version", "21");
 
         final File currentProjectArtifactFile = currentProject.getArtifact()
             .getFile();
@@ -115,7 +118,7 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
                     element(MojoExecutor.name("release"), javaVersion),
                     element("outputDirectory", currentProject.getBuild().getDirectory() + "/error-prone-classes"),
                     element(MojoExecutor.name("showWarnings"), "true"),
-                    element(MojoExecutor.name("compilerArgs"), elementsOfCompilerArgs(stepConfiguration)
+                    element(MojoExecutor.name("compilerArgs"), elementsOfCompilerArgs(stepConfiguration, currentProject)
                         .toArray(MojoExecutor.Element[]::new)),
                     element(MojoExecutor.name("annotationProcessorPaths"),
                         elementsOfAnnotationProcessorPaths(currentProject, codeQualityConfiguration, stepConfiguration)
@@ -129,14 +132,14 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
             currentProject.getArtifact()
                 .setFile(currentProjectArtifactFile);
 
-            return parseViolations(log);
+            return parseViolations(context);
         } catch (final Exception e) {
             throw new CodeQualityException("Error during execution of ErrorProne step", e);
         }
     }
 
-    private List<MojoExecutor.Element> elementsOfCompilerArgs(final ErrorProneConfiguration errorProneConfiguration) {
-        return CompilerArgsComposer.compose(errorProneConfiguration, mavenSession);
+    private List<MojoExecutor.Element> elementsOfCompilerArgs(final ErrorProneConfiguration errorProneConfiguration, final MavenProject currentProject) {
+        return CompilerArgsComposer.compose(errorProneConfiguration, currentProject, mavenSession);
     }
 
     private List<MojoExecutor.Element> elementsOfAnnotationProcessorPaths(
@@ -161,25 +164,25 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
         return annotationProcessorPaths;
     }
 
-    private List<Violation> parseViolations(final Log log) {
-        final String errorProneOutputFilePath = errorProneOutputFilePath(project);
+    private List<Violation> parseViolations(final ExecutionContext context) {
+        final String errorProneOutputFilePath = errorProneOutputFilePath(context.getProject());
 
-        return violationsFromOutputFile(errorProneOutputFilePath, log);
+        return violationsFromOutputFile(errorProneOutputFilePath, context);
     }
 
-    private List<Violation> violationsFromOutputFile(final String errorProneOutputFilePath, final Log log) {
+    private List<Violation> violationsFromOutputFile(final String errorProneOutputFilePath, final ExecutionContext context) {
         try (final InputStream targetStream = new FileInputStream(errorProneOutputFilePath)) {
             return errorProneErrorLogParser.parse(targetStream);
         } catch (final IOException e) {
-            log.warn("No error prone file found. Please register the plugin as a extension");
+            context.getLog().warn("No error prone file found. Please register the plugin as a extension");
 
             return Collections.emptyList();
         }
     }
 
-    private String errorProneOutputFilePath(final MavenProject project) {
+    private static String errorProneOutputFilePath(final MavenProject project) {
         return targetOutputFilePath(project.getBuild().getDirectory(),
-            String.format("errorprone-%s.txt", mavenSession.getCurrentProject().getModel().getArtifactId()));
+            String.format("errorprone-%s.txt", project.getModel().getArtifactId()));
     }
 
     private static String targetOutputFilePath(final String targetDirectory, final String targetOutputFilename) {
@@ -206,7 +209,8 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
             "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
         );
 
-        private static List<MojoExecutor.Element> compose(final ErrorProneConfiguration errorProneConfiguration, final MavenSession mavenSession) {
+        private static List<MojoExecutor.Element> compose(final ErrorProneConfiguration errorProneConfiguration, final MavenProject currentProject,
+                                                          final MavenSession mavenSession) {
             final List<MojoExecutor.Element> args = new ArrayList<>();
 
             // caller-provided compiler args (first to allow later overrides to win if needed)
@@ -219,7 +223,7 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
             ERROR_PRONE_OPENS.forEach(f -> args.add(arg("-J" + f)));
 
             // Classpath (ensure latest reactor outputs)
-            addClassPathArgs(args, mavenSession);
+            addClassPathArgs(args, currentProject, mavenSession);
 
             // Single-compilation-unit policy for javac
             args.add(arg("-XDcompilePolicy=simple"));
@@ -240,9 +244,7 @@ public class ErrorProneStep implements Step<ErrorProneConfiguration> {
             return args;
         }
 
-        private static void addClassPathArgs(final List<MojoExecutor.Element> args, final MavenSession session) {
-            final MavenProject current = session.getCurrentProject();
-
+        private static void addClassPathArgs(final List<MojoExecutor.Element> args, final MavenProject current, final MavenSession session) {
             final List<String> rawClasspath;
             try {
                 // includes reactor target/classes
