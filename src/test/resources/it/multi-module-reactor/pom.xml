@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.finoid.it</groupId>
+    <artifactId>multi-module-reactor</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>multi-module-reactor</name>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Overridden by the integration test with the version under test -->
+        <cq.plugin.version>main</cq.plugin.version>
+        <!-- Overridden by the integration test to assert the severity threshold -->
+        <cq.it.checkstyle.permissive>true</cq.it.checkstyle.permissive>
+    </properties>
+
+    <modules>
+        <!-- module-b depends on module-a, module-c is independent of both, so a parallel build
+             has to schedule the modules on more than one thread -->
+        <module>module-a</module>
+        <module>module-b</module>
+        <module>module-c</module>
+    </modules>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.finoid</groupId>
+                <artifactId>codequality-maven-plugin</artifactId>
+                <version>${cq.plugin.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>code-quality</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>code-quality</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <codeQuality>
+                        <checkstyle>
+                            <permissive>${cq.it.checkstyle.permissive}</permissive>
+                        </checkstyle>
+                        <!-- Both are compiler based and would fork javac per module, which is far too slow
+                             and environment dependent for an integration test -->
+                        <errorProne>
+                            <enabled>false</enabled>
+                        </errorProne>
+                        <checkerFramework>
+                            <enabled>false</enabled>
+                        </checkerFramework>
+                    </codeQuality>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

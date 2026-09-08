@@ -3,7 +3,6 @@ package io.github.finoid.maven.plugins.codequality.util;
 import io.github.finoid.maven.plugins.codequality.log.LogLevel;
 import lombok.experimental.UtilityClass;
 import org.apache.maven.artifact.Artifact;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.model.Plugin;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
@@ -19,6 +18,11 @@ import java.util.Optional;
  */
 @UtilityClass
 public final class ProjectUtils {
+    /**
+     * The {@code groupId:artifactId} of this plugin.
+     */
+    public static final String PLUGIN_KEY = "io.github.finoid:codequality-maven-plugin";
+
     /**
      * Resolves a list of files from the given source directories in the specified Maven project.
      *
@@ -71,33 +75,18 @@ public final class ProjectUtils {
     }
 
     /**
-     * Determines whether the current module is the last module in the Maven build sequence.
-     *
-     * @param mavenSession The current Maven session, which contains the project dependency graph.
-     * @return {@code true} if the current module is the last in the build order, {@code false} otherwise.
-     */
-    public static boolean isLastModule(final MavenSession mavenSession) {
-        return mavenSession.getProjectDependencyGraph()
-            .getSortedProjects()
-            .get(mavenSession.getProjectDependencyGraph().getSortedProjects().size() - 1)
-            .getArtifactId()
-            .equalsIgnoreCase(mavenSession.getCurrentProject().getArtifactId());
-    }
-
-    /**
      * Resolves the configured step log level from the Maven plugin confiﬁguration or falls back
      * to a provided default if the configuration is missing or incomplete.
      *
-     * @param mavenSession the Maven session providing access to the current project
-     * @param fallback     the fallback log level if the configuration is absent or invalid
+     * @param project  the module to resolve the plugin configuration of
+     * @param fallback the fallback log level if the configuration is absent or invalid
      * @return the resolved step log level, or the fallback
      * @throws IllegalArgumentException if the step log level is invalid
      */
     @SuppressWarnings("introduce.eliminate")
-    public static LogLevel stepLogLevelOrFallback(final MavenSession mavenSession,
+    public static LogLevel stepLogLevelOrFallback(final MavenProject project,
                                                   final LogLevel fallback) {
-        final Plugin plugin = mavenSession.getCurrentProject()
-            .getPlugin("io.github.finoid:codequality-maven-plugin");
+        final Plugin plugin = project.getPlugin(PLUGIN_KEY);
 
         if (plugin == null || !(plugin.getConfiguration() instanceof Xpp3Dom config)) {
             return fallback;
@@ -114,9 +103,16 @@ public final class ProjectUtils {
         return LogLevel.ofStringOrThrow(stepLogLevel.getValue().trim());
     }
 
+    /**
+     * Resolves the build directory of the top most module of the given module's parent chain, being the build
+     * directory the reactor wide reports are written to.
+     *
+     * @param mavenProject the module to walk the parent chain of
+     * @return the build directory
+     */
     @Nullable
-    public static String getProjectBuildDirectory(final MavenSession mavenSession) {
-        MavenProject project = mavenSession.getCurrentProject();
+    public static String getProjectBuildDirectory(final MavenProject mavenProject) {
+        MavenProject project = mavenProject;
 
         while (true) {
             MavenProject parent = project.getParent();

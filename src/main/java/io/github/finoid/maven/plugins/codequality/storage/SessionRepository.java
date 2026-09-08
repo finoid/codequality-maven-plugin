@@ -5,7 +5,14 @@ import org.jspecify.annotations.Nullable;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.function.Supplier;
 
+/**
+ * Stores state which outlives a single mojo execution in the data context of the session.
+ * <p>
+ * The data context is shared by every module of the reactor - the per project session copies of a parallel build all
+ * refer to the same repository session - and is safe for concurrent use.
+ */
 @Singleton
 public class SessionRepository {
     private final MavenSession session;
@@ -38,5 +45,22 @@ public class SessionRepository {
         return session.getRepositorySession()
             .getData()
             .get(key);
+    }
+
+    /**
+     * Retrieves the value associated with the given key, storing and returning the value produced by the supplier if
+     * no value is associated with it yet.
+     * <p>
+     * The supplier is invoked at most once per key, even when several builder threads race for it, which makes the
+     * returned value safe to use as a shared, mutable holder of reactor wide state.
+     *
+     * @param key      the key to look up
+     * @param supplier the supplier of the initial value
+     * @return the already associated value, or the newly supplied one
+     */
+    public Object computeIfAbsent(final String key, final Supplier<Object> supplier) {
+        return session.getRepositorySession()
+            .getData()
+            .computeIfAbsent(key, supplier);
     }
 }
