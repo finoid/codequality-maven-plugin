@@ -2,18 +2,16 @@ package io.github.finoid.maven.plugins.codequality.factories;
 
 import com.puppycrawl.tools.checkstyle.AbstractAutomaticBean;
 import com.puppycrawl.tools.checkstyle.DefaultLogger;
+import io.github.finoid.maven.plugins.codequality.ExecutionContext;
 import io.github.finoid.maven.plugins.codequality.configuration.CheckstyleConfiguration;
 import io.github.finoid.maven.plugins.codequality.log.CheckstyleConsoleLogger;
 import io.github.finoid.maven.plugins.codequality.log.LinkableAuditEventDefaultFormatter;
-import io.github.finoid.maven.plugins.codequality.util.Precondition;
 import io.github.finoid.maven.plugins.codequality.util.ProjectUtils;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugins.checkstyle.exec.CheckstyleExecutorRequest;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.FileUtils;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
 import java.io.OutputStream;
@@ -22,24 +20,23 @@ import java.util.List;
 
 import static com.puppycrawl.tools.checkstyle.AbstractAutomaticBean.OutputStreamOptions.NONE;
 
+/**
+ * Creates the {@link CheckstyleExecutorRequest} of a single module.
+ * <p>
+ * Stateless, and therefore safe to share between the builder threads of a parallel build. The module to create the
+ * request for is taken from the {@link ExecutionContext} of the current mojo execution.
+ */
 @Singleton
 public class CheckstyleExecutorRequestFactory {
-    private final MavenProject project;
-    private final MavenSession mavenSession;
-
-    @Inject
-    public CheckstyleExecutorRequestFactory(final MavenProject project, final MavenSession mavenSession) {
-        this.project = Precondition.nonNull(project, "MavenProject shouldn't be null");
-        this.mavenSession = Precondition.nonNull(mavenSession, "MavenSession shouldn't be null");
-    }
-
     public CheckstyleExecutorRequest create(final CheckstyleConfiguration configuration,
                                             final CheckstyleConfiguration.ExecutionEnvironment executionEnvironment,
-                                            final Log log) {
+                                            final ExecutionContext context) {
+        final MavenProject project = context.getProject();
+
         final CheckstyleExecutorRequest request = new CheckstyleExecutorRequest()
             .setIncludes(executionEnvironment.getIncludes())
             .setResourceIncludes(executionEnvironment.getResourceIncludes())
-            .setSourceDirectories(sourceDirectories(executionEnvironment))
+            .setSourceDirectories(sourceDirectories(executionEnvironment, project))
             .setConfigLocation(executionEnvironment.getConfigLocation())
             .setHeaderLocation(executionEnvironment.getHeaderLocation())
             .setCacheFile(project.getBuild().getDirectory() + "/" + executionEnvironment.getCacheFile())
@@ -53,17 +50,17 @@ public class CheckstyleExecutorRequestFactory {
         if (configuration.isConsoleOutput()) {
             request
                 .setConsoleOutput(true)
-                .setConsoleListener(consoleListener(log));
+                .setConsoleListener(consoleListener(context.getLog()));
         }
 
         return request;
     }
 
-    private List<File> sourceDirectories(final CheckstyleConfiguration.ExecutionEnvironment executionEnvironment) {
+    private List<File> sourceDirectories(final CheckstyleConfiguration.ExecutionEnvironment executionEnvironment, final MavenProject project) {
         if (executionEnvironment.getSourceDirectories() == null || executionEnvironment.getSourceDirectories().isEmpty()) {
             final List<String> compileSourceRoots = switch (executionEnvironment.getEnvironment()) {
-                case MAIN -> filterBuildTarget(mavenSession.getCurrentProject().getCompileSourceRoots());
-                case TEST -> filterBuildTarget(mavenSession.getCurrentProject().getTestCompileSourceRoots());
+                case MAIN -> filterBuildTarget(project.getCompileSourceRoots(), project);
+                case TEST -> filterBuildTarget(project.getTestCompileSourceRoots(), project);
             };
 
             return ProjectUtils.filesOfSourcesDirectories(compileSourceRoots, project);
@@ -84,10 +81,8 @@ public class CheckstyleExecutorRequestFactory {
             log);
     }
 
-    private List<String> filterBuildTarget(final List<String> compileSourceRoots) {
-        final MavenProject currentProject = mavenSession.getCurrentProject();
-
-        final Path pathToProjectBuildTarget = FileUtils.resolveFile(currentProject.getBasedir(), currentProject.getBuild().getDirectory())
+    private List<String> filterBuildTarget(final List<String> compileSourceRoots, final MavenProject project) {
+        final Path pathToProjectBuildTarget = FileUtils.resolveFile(project.getBasedir(), project.getBuild().getDirectory())
             .toPath();
 
         return compileSourceRoots.stream()

@@ -10,7 +10,6 @@ import io.github.finoid.maven.plugins.codequality.util.ProjectUtils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.maven.execution.MavenSession;
 import org.apache.maven.execution.MojoExecutionEvent;
 import org.apache.maven.execution.MojoExecutionListener;
 import org.apache.maven.project.MavenProject;
@@ -47,14 +46,10 @@ public class MojoLogDecoratorExecutionListener implements MojoExecutionListener 
     private static final Logger LOGGER = new ConsoleLogger(1, "console");
 
     private final LoggerManager loggerManager;
-    private final MavenProject project;
-    private final MavenSession mavenSession;
 
     @Inject
-    public MojoLogDecoratorExecutionListener(final LoggerManager loggerManager, final MavenProject project, final MavenSession mavenSession) {
+    public MojoLogDecoratorExecutionListener(final LoggerManager loggerManager) {
         this.loggerManager = Precondition.nonNull(loggerManager, "LoggerManager shouldn't be null");
-        this.project = Precondition.nonNull(project, "MavenProject shouldn't be null");
-        this.mavenSession = mavenSession;
     }
 
     @Override
@@ -66,10 +61,14 @@ public class MojoLogDecoratorExecutionListener implements MojoExecutionListener 
         @Nullable
         String nullableOutputFileName = null;
 
+        // The listener is a singleton, shared by every module of the reactor and - during a parallel build - by every
+        // builder thread, so the module being compiled is taken from the event rather than from an injected project.
+        final MavenProject project = event.getProject();
+
         try {
             nullableOutputFileName = switch (stepAnalyzer(event.getExecution().getConfiguration())) {
-                case ERROR_PRONE -> StepAnalyzer.ERROR_PRONE.composeFileName(event.getProject().getModel().getArtifactId());
-                case CHECKER_FRAMEWORK -> StepAnalyzer.CHECKER_FRAMEWORK.composeFileName(event.getProject().getModel().getArtifactId());
+                case ERROR_PRONE -> StepAnalyzer.ERROR_PRONE.composeFileName(project.getModel().getArtifactId());
+                case CHECKER_FRAMEWORK -> StepAnalyzer.CHECKER_FRAMEWORK.composeFileName(project.getModel().getArtifactId());
                 case OTHER -> null;
             };
 
@@ -79,7 +78,7 @@ public class MojoLogDecoratorExecutionListener implements MojoExecutionListener 
                 return;
             }
 
-            final LogLevel stepLogLevel = ProjectUtils.stepLogLevelOrFallback(mavenSession, LogLevel.ERROR);
+            final LogLevel stepLogLevel = ProjectUtils.stepLogLevelOrFallback(project, LogLevel.ERROR);
 
             final Path outputFilePath = targetOutputFilePath(project.getBuild().getDirectory(), nullableOutputFileName);
 

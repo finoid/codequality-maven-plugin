@@ -4,9 +4,10 @@ import io.github.finoid.maven.plugins.codequality.fixtures.AuditEventFaker;
 import io.github.finoid.maven.plugins.codequality.fixtures.UnitTest;
 import io.github.finoid.maven.plugins.codequality.report.CheckerFrameworkViolationLogParser;
 import io.github.finoid.maven.plugins.codequality.log.ErrorProneViolationLogParser;
-import org.apache.maven.project.MavenProject;
+import org.apache.maven.execution.MavenExecutionRequest;
+import org.apache.maven.execution.MavenSession;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
@@ -19,15 +20,24 @@ class ViolationConverterUnitTest extends UnitTest {
         .toAbsolutePath();
 
     @Mock
-    private MavenProject project;
-    @InjectMocks
+    private MavenSession session;
+    @Mock
+    private MavenExecutionRequest request;
+
     private ViolationConverter unit;
+
+    @BeforeEach
+    void beforeEach() {
+        Mockito.when(session.getRequest())
+            .thenReturn(request);
+        Mockito.when(request.getMultiModuleProjectDirectory())
+            .thenReturn(WORKING_DIRECTORY.toFile());
+
+        unit = new ViolationConverter(session);
+    }
 
     @Test
     void givenValidLogEntryAndMatcher_whenOfAuditEvent_thenExpectedViolation() {
-        Mockito.when(project.getBasedir())
-            .thenReturn(WORKING_DIRECTORY.toFile());
-
         var event = AuditEventFaker.auditEvent()
             .withFileName(WORKING_DIRECTORY + "/src/main/java/io/github/finoid/maven/plugins/codequality"
                           + "/step/CheckerFrameworkStep.java")
@@ -44,9 +54,6 @@ class ViolationConverterUnitTest extends UnitTest {
             WORKING_DIRECTORY
             + "/src/main/java/io/github/finoid/maven/plugins/codequality/step/CheckerFrameworkStep.java:[10,29] error: [required.method.not.called] "
             + "@MustCall method close may not have been invoked on SpringApplication.run(Application.class, args) or any of its aliases.");
-        Mockito.when(project.getBasedir())
-            .thenReturn(WORKING_DIRECTORY.toFile());
-
         violationMatcher.find();
 
         var violation = unit.ofCheckerFrameworkViolationMatcher(violationMatcher);
@@ -64,9 +71,6 @@ class ViolationConverterUnitTest extends UnitTest {
             + "    (see https://errorprone.info/bugpattern/StringCaseLocaleUsage)\n"
             + "  Did you mean '.toLowerCase(Locale.ROOT);' or '.toLowerCase(Locale.getDefault());' or "
             + "'return Ascii.toLowerCase(currentSpan.getSpanContext()'?");
-        Mockito.when(project.getBasedir())
-            .thenReturn(WORKING_DIRECTORY.toFile());
-
         violationMatcher.find();
 
         var violation = unit.ofErrorProneViolationMatcher(violationMatcher);
