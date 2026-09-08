@@ -47,7 +47,7 @@
         <jgit.version>7.7.1.202607240634-r</jgit.version>
         <junit-jupiter-api.version>5.11.4</junit-jupiter-api.version>
         <json-path.version>3.0.0</json-path.version>
-        <jspecify.version>1.0.0</jspecify.version>
+        <jspecify.version>1.0.1</jspecify.version>
         <lombok.version>1.18.48</lombok.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <maven-failsafe-plugin.version>3.5.4</maven-failsafe-plugin.version>
@@ -157,6 +157,11 @@
                 <groupId>org.apache.maven.doxia</groupId>
                 <artifactId>doxia-core</artifactId>
                 <version>${doxia.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jspecify</groupId>
+                <artifactId>jspecify</artifactId>
+                <version>${jspecify.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
