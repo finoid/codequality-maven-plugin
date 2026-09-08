@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.finoid.it</groupId>
+    <artifactId>checker-framework-reactor</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+    <name>checker-framework-reactor</name>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Both overridden by the integration test, the checker version with the one the plugin defaults to -->
+        <cq.plugin.version>main</cq.plugin.version>
+        <cq.it.checker.version>4.2.3</cq.it.checker.version>
+    </properties>
+
+    <modules>
+        <!-- module-b depends on module-a, module-c is independent of both, so a parallel build
+             has to schedule the modules on more than one thread -->
+        <module>module-a</module>
+        <module>module-b</module>
+        <module>module-c</module>
+    </modules>
+
+    <dependencies>
+        <!-- The Checker Framework step declares this a prerequisite and skips the module without it -->
+        <dependency>
+            <groupId>org.checkerframework</groupId>
+            <artifactId>checker-qual</artifactId>
+            <version>${cq.it.checker.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.finoid</groupId>
+                <artifactId>codequality-maven-plugin</artifactId>
+                <version>${cq.plugin.version}</version>
+                <!-- The Checker Framework only reports anything when the plugin is registered as an extension, the
+                     output of the forked compiler is captured by a MojoExecutionListener -->
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>code-quality</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>code-quality</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <codeQuality>
+                        <!-- Only the Checker Framework, so the assertions of the test are not diluted by the findings
+                             of the other analyzers -->
+                        <checkstyle>
+                            <enabled>false</enabled>
+                        </checkstyle>
+                        <errorProne>
+                            <enabled>false</enabled>
+                        </errorProne>
+                        <checkerFramework>
+                            <enabled>true</enabled>
+                            <!-- A single checker rather than the default eleven, the fixture only needs the one and
+                                 every additional checker costs compile time per module -->
+                            <checkers>
+                                <checker>org.checkerframework.checker.resourceleak.ResourceLeakChecker</checker>
+                            </checkers>
+                        </checkerFramework>
+                    </codeQuality>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

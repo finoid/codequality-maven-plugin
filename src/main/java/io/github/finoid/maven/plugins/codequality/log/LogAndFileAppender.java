@@ -5,6 +5,7 @@ import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.logging.Logger;
 import org.jspecify.annotations.Nullable;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -16,13 +17,17 @@ import java.io.PrintStream;
  * This class wraps an existing {@link Logger} instance and appends log messages to a specified file,
  * making it useful for cases where logs need to be both written to the standard logging system
  * and persisted to a file. This implementation is inspired by {@link org.apache.maven.monitor.logging.DefaultLog}.
+ * <p>
+ * Holds the file open until {@link #close()} is called, which
+ * {@link io.github.finoid.maven.plugins.codequality.MojoLogDecoratorExecutionListener} does once the decorated mojo has
+ * finished. A reactor of many modules would otherwise keep one file handle open per analyzed module.
  */
-public class LogAndFileAppender implements Log {
+public class LogAndFileAppender implements Log, Closeable {
     private final Logger logger;
     private final LogLevel logLevel;
     private final PrintStream printStream;
 
-    @SuppressWarnings("required.method.not.called") // the FileOutputStream will be implicitly closed when the jvm exits
+    @SuppressWarnings("required.method.not.called") // ownership is transferred to the PrintStream, which close() closes
     public LogAndFileAppender(final Logger logger, final File file, final LogLevel logLevel) throws FileNotFoundException {
         this.logger = Precondition.nonNull(logger, "Logger shouldn't be null");
         this.logLevel = Precondition.nonNull(logLevel, "LogLevel shouldn't be null");
@@ -129,6 +134,14 @@ public class LogAndFileAppender implements Log {
         logger.error("", error);
 
         printStream.println(error);
+    }
+
+    /**
+     * Closes the underlying file. Subsequent writes are discarded by the {@link PrintStream} rather than throwing.
+     */
+    @Override
+    public void close() {
+        printStream.close();
     }
 
     @Override

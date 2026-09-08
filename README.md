@@ -8,6 +8,12 @@ to detect style violations and potential bugs early in the development process.
   <img src=".github/assets/finoid-codequality-maven-plugin.jpg" width="256">
 </div>
 
+## Requirements
+
+* **Java 21 or later.** The plugin itself is compiled for Java 21, and the Error Prone releases it defaults to require a
+  Java 21 compiler to run.
+* Maven 3.9.6 or later.
+
 ## Supported code quality tools
 
 * Checkstyle – Analyzes Java code for style guideline violations, helping enforce consistent formatting and naming

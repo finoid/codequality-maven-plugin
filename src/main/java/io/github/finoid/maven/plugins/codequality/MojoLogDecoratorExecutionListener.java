@@ -101,12 +101,24 @@ public class MojoLogDecoratorExecutionListener implements MojoExecutionListener 
 
     @Override
     public void afterMojoExecutionSuccess(final MojoExecutionEvent event) {
-        // No-op
+        closeDecoratedLog(event);
     }
 
     @Override
     public void afterExecutionFailure(final MojoExecutionEvent event) {
-        // No-op
+        closeDecoratedLog(event);
+    }
+
+    /**
+     * Releases the file the decorated log of the given mojo writes to.
+     * <p>
+     * The log is read back from the mojo rather than remembered, so that concurrently executing modules cannot close
+     * each other's file. Mojos this listener did not decorate are left alone.
+     */
+    private static void closeDecoratedLog(final MojoExecutionEvent event) {
+        if (event.getMojo().getLog() instanceof LogAndFileAppender appender) {
+            appender.close();
+        }
     }
 
     private static boolean isMojoOfType(final MojoExecutionEvent event, final String type) {
