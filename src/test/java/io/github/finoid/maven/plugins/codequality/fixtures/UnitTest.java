@@ -2,6 +2,7 @@ package io.github.finoid.maven.plugins.codequality.fixtures;
 
 import au.com.origin.snapshots.Expect;
 import au.com.origin.snapshots.junit5.SnapshotExtension;
+import au.com.origin.snapshots.serializers.v1.ToStringSnapshotSerializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.github.finoid.maven.plugins.codequality.fixtures.snapshot.JsonSnapshotSerializer;
 import org.junit.jupiter.api.Tag;
@@ -59,6 +60,22 @@ public class UnitTest {
     public <T> void snapshot(final T toBeSnapshotted, final String... maskedFieldPaths) {
         expect
             .serializer(new JsonSnapshotSerializer(Arrays.asList(maskedFieldPaths), createSimpleModule()))
+            .toMatchSnapshot(toBeSnapshotted);
+    }
+
+    /**
+     * Takes a snapshot of the string representation of the given object, verbatim.
+     *
+     * <p>Unlike {@link #snapshot(Object)} the snapshot is not serialized as JSON, which keeps multi-line
+     * output - console output in particular - readable, and reviewable, in the snapshot file.
+     *
+     * @param toBeSnapshotted the object to be snapshotted
+     * @param <T>             the type of the object
+     */
+    @SuppressWarnings("SpellCheckingInspection")
+    public <T> void snapshotText(final T toBeSnapshotted) {
+        expect
+            .serializer(new ToStringSnapshotSerializer())
             .toMatchSnapshot(toBeSnapshotted);
     }
 

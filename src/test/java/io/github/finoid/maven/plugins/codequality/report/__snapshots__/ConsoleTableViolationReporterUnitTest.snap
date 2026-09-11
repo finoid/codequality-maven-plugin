@@ -1,0 +1,54 @@
+io.github.finoid.maven.plugins.codequality.report.ConsoleTableViolationReporterUnitTest.givenNoViolations_whenReport_thenReportsBothCategoriesAsEmpty=[
+[INFO] ✅ \u001B[32m ##### No permissive violations found ##### \u001B[0m ✅ 
+[INFO] ✅ \u001B[32m ##### No non permissive violations found ##### \u001B[0m ✅ 
+]
+
+
+io.github.finoid.maven.plugins.codequality.report.ConsoleTableViolationReporterUnitTest.givenNonPermissiveViolations_whenReport_thenRendersTable=[
+[INFO] ✅ \u001B[32m ##### No permissive violations found ##### \u001B[0m ✅ 
+[WARN] ⚠ \u001B[33m ##### found 3 non permissive violations ##### \u001B[0m
+[WARN] 
+┌────────────┬────────────────────┬────────────────────────────────────────────────────────────┬──────────────────────────┬────────────────────┐
+│            │                    │                                                            │                          │                    │
+│ Tool       │ Rule               │ Description                                                │ Path                     │ Line/Column number │
+│            │                    │                                                            │                          │                    │
+├────────────┼────────────────────┼────────────────────────────────────────────────────────────┼──────────────────────────┼────────────────────┤
+│            │                    │                                                            │                          │                    │
+│ checkstyle │ UnusedImports      │ Unused import - java.util.Optional.                        │ src/main/java/Alpha.java │ 3:8                │
+│            │                    │                                                            │                          │                    │
+├────────────┼────────────────────┼────────────────────────────────────────────────────────────┼──────────────────────────┼────────────────────┤
+│            │                    │                                                            │                          │                    │
+│ checkstyle │ LineLength         │ Line is longer than 160 characters.                        │ src/main/java/Beta.java  │ 42:1               │
+│            │                    │                                                            │                          │                    │
+├────────────┼────────────────────┼────────────────────────────────────────────────────────────┼──────────────────────────┼────────────────────┤
+│            │                    │                                                            │                          │                    │
+│ NullAway   │ NullAway           │ Passing @Nullable parameter 'name' where @NonNull is       │ src/main/java/Gamma.java │ 17:24              │
+│            │                    │ required.                                                  │                          │                    │
+│            │                    │                                                            │                          │                    │
+└────────────┴────────────────────┴────────────────────────────────────────────────────────────┴──────────────────────────┴────────────────────┘
+]
+
+
+io.github.finoid.maven.plugins.codequality.report.ConsoleTableViolationReporterUnitTest.givenPermissiveViolations_whenReport_thenRendersTable=[
+[INFO] ✅ \u001B[32m ##### found 3 permissive violations ##### \u001B[0m
+[INFO] 
+┌────────────┬────────────────────┬────────────────────────────────────────────────────────────┬──────────────────────────┬────────────────────┐
+│            │                    │                                                            │                          │                    │
+│ Tool       │ Rule               │ Description                                                │ Path                     │ Line/Column number │
+│            │                    │                                                            │                          │                    │
+├────────────┼────────────────────┼────────────────────────────────────────────────────────────┼──────────────────────────┼────────────────────┤
+│            │                    │                                                            │                          │                    │
+│ checkstyle │ UnusedImports      │ Unused import - java.util.Optional.                        │ src/main/java/Alpha.java │ 3:8                │
+│            │                    │                                                            │                          │                    │
+├────────────┼────────────────────┼────────────────────────────────────────────────────────────┼──────────────────────────┼────────────────────┤
+│            │                    │                                                            │                          │                    │
+│ checkstyle │ LineLength         │ Line is longer than 160 characters.                        │ src/main/java/Beta.java  │ 42:1               │
+│            │                    │                                                            │                          │                    │
+├────────────┼────────────────────┼────────────────────────────────────────────────────────────┼──────────────────────────┼────────────────────┤
+│            │                    │                                                            │                          │                    │
+│ NullAway   │ NullAway           │ Passing @Nullable parameter 'name' where @NonNull is       │ src/main/java/Gamma.java │ 17:24              │
+│            │                    │ required.                                                  │                          │                    │
+│            │                    │                                                            │                          │                    │
+└────────────┴────────────────────┴────────────────────────────────────────────────────────────┴──────────────────────────┴────────────────────┘
+[INFO] ✅ \u001B[32m ##### No non permissive violations found ##### \u001B[0m ✅ 
+]

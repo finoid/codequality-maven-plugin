@@ -1,0 +1,38 @@
+io.github.finoid.maven.plugins.codequality.report.ConsolePlainViolationReporterUnitTest.givenNoViolations_whenReport_thenReportsBothCategoriesAsEmpty=[
+[INFO] ✅ \u001B[32m ##### No permissive violations found ##### \u001B[0m ✅ 
+[INFO] ✅ \u001B[32m ##### No non permissive violations found ##### \u001B[0m ✅ 
+]
+
+
+io.github.finoid.maven.plugins.codequality.report.ConsolePlainViolationReporterUnitTest.givenNonPermissiveViolations_whenReport_thenReportsEveryViolation=[
+[INFO] ✅ \u001B[32m ##### No permissive violations found ##### \u001B[0m ✅ 
+[WARN] ⚠ \u001B[33m ##### found 2 non permissive violations ##### \u001B[0m
+[WARN] file:///workspace/src/main/java/Alpha.java:3:8 
+  [checkstyle - UnusedImports] Unused import - java.util.Optional.
+[WARN] file:///workspace/src/main/java/Gamma.java:17:24 
+  [NullAway - NullAway] Passing @Nullable parameter 'name' where @NonNull is required.
+]
+
+
+io.github.finoid.maven.plugins.codequality.report.ConsolePlainViolationReporterUnitTest.givenPermissiveViolations_whenReport_thenReportsEveryViolation=[
+[INFO] ✅ \u001B[32m ##### found 2 permissive violations ##### \u001B[0m
+[INFO] file:///workspace/src/main/java/Alpha.java:3:8 
+  [checkstyle - UnusedImports] Unused import - java.util.Optional.
+[INFO] file:///workspace/src/main/java/Gamma.java:17:24 
+  [NullAway - NullAway] Passing @Nullable parameter 'name' where @NonNull is required.
+[INFO] ✅ \u001B[32m ##### No non permissive violations found ##### \u001B[0m ✅ 
+]
+
+
+io.github.finoid.maven.plugins.codequality.report.ConsolePlainViolationReporterUnitTest.givenViolationsOfBothCategories_whenReport_thenReportsEachCategoryAtItsOwnLevel=[
+[INFO] ✅ \u001B[32m ##### found 2 permissive violations ##### \u001B[0m
+[INFO] file:///workspace/src/main/java/Alpha.java:3:8 
+  [checkstyle - UnusedImports] Unused import - java.util.Optional.
+[INFO] file:///workspace/src/main/java/Gamma.java:17:24 
+  [NullAway - NullAway] Passing @Nullable parameter 'name' where @NonNull is required.
+[WARN] ⚠ \u001B[33m ##### found 2 non permissive violations ##### \u001B[0m
+[WARN] file:///workspace/src/main/java/Alpha.java:3:8 
+  [checkstyle - UnusedImports] Unused import - java.util.Optional.
+[WARN] file:///workspace/src/main/java/Gamma.java:17:24 
+  [NullAway - NullAway] Passing @Nullable parameter 'name' where @NonNull is required.
+]
