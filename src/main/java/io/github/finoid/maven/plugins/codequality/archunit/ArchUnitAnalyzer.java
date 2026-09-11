@@ -1,7 +1,6 @@
 package io.github.finoid.maven.plugins.codequality.archunit;
 
 import com.tngtech.archunit.core.domain.JavaClasses;
-import com.tngtech.archunit.core.domain.SourceCodeLocation;
 import com.tngtech.archunit.core.domain.properties.HasSourceCodeLocation;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.EvaluationResult;
@@ -97,22 +96,25 @@ public class ArchUnitAnalyzer {
     private Violation toViolation(final NamedArchRule namedRule, final Collection<Object> correspondingObjects,
                                   final String message, final ArchUnitConfiguration configuration,
                                   final SourceFileResolver sourceFileResolver) {
-        final Optional<SourceCodeLocation> location = sourceCodeLocation(correspondingObjects);
+        final Optional<HasSourceCodeLocation> element = locatableElement(correspondingObjects);
 
-        final File file = location.map(sourceFileResolver::resolve)
+        final File file = element.map(it -> sourceFileResolver.resolve(it.getSourceCodeLocation()))
             .orElseGet(sourceFileResolver::moduleDirectory);
-        final int line = location.map(sourceFileResolver::lineNumber)
+        final int line = element.map(it -> sourceFileResolver.lineNumber(it, it.getSourceCodeLocation(), file))
             .orElse(1);
 
         return violationConverter.ofArchUnitViolation(namedRule.name(), singleLine(message), file, line,
             configuration.severityOf(namedRule.name()));
     }
 
-    private static Optional<SourceCodeLocation> sourceCodeLocation(final Collection<Object> correspondingObjects) {
+    /**
+     * The element the violation is reported against, kept rather than only its location: a member knows its own name,
+     * which is what lets the declaration be found in the source.
+     */
+    private static Optional<HasSourceCodeLocation> locatableElement(final Collection<Object> correspondingObjects) {
         return correspondingObjects.stream()
             .filter(HasSourceCodeLocation.class::isInstance)
             .map(HasSourceCodeLocation.class::cast)
-            .map(HasSourceCodeLocation::getSourceCodeLocation)
             .findFirst();
     }
 
