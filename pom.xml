@@ -28,6 +28,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <archunit.version>1.4.1</archunit.version>
         <asciitable.version>0.3.2</asciitable.version>
         <checkstyle.version>14.1.0</checkstyle.version>
         <checker-framework.version>4.2.3</checker-framework.version>
@@ -197,6 +198,11 @@
     </dependencyManagement>
 
     <dependencies>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <version>${archunit.version}</version>
+        </dependency>
         <dependency>
             <groupId>de.vandermeer</groupId>
             <artifactId>asciitable</artifactId>
