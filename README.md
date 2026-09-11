@@ -116,6 +116,49 @@ For continuous use across builds, include the plugin in your project’s pom.xml
 | `violationReporters`       | List of violation reporters.                                              | `[CONSOLE_PLAIN,GITLAB_FILE_VIOLATION]` |
 | `violationFilters`         | List of violation filters.                                                | `[]`                                    |
 
+### Suppressing a violation
+
+`SUPPRESSION_COMMENT` is a violation filter which drops findings a comment in the source has opted out of. Enable it
+alongside any other filters:
+
+```xml
+<codeQuality>
+    <violationFilters>
+        <violationFilter>SUPPRESSION_COMMENT</violationFilter>
+    </violationFilters>
+</codeQuality>
+```
+
+A comment naming the rule, on the line the violation is reported against or on the line above it, suppresses that one
+rule at that one place:
+
+```java
+// suppress:NullAway the framework sets this before the first call
+private String name;
+
+private String name; // suppress:NullAway same, on the line itself
+```
+
+Violations are reported against the **declaration** - of the method, field or type - rather than against the first
+statement the bytecode records, so the comment goes directly above the member it concerns.
+
+The rule has to be named exactly as the report names it, being the part after the tool in the console output - for
+example `NullAway`, `MethodName(name.invalidPattern)` or
+`TransactionRules.NO_TRANSACTIONAL_METHOD_SHOULD_START_A_SECOND_TRANSACTION`. One comment may name several rules. A
+bare `// suppress` is deliberately not honoured: it would silently swallow the next, unrelated finding on the same
+line.
+
+Suppressions apply to every analyzer, since the filter works off the reported position rather than off the source
+language. How many were honoured is logged unconditionally, so a run reporting nothing can still be told apart from
+one whose findings were all opted out of:
+
+```
+[INFO] Suppressed 1 violation(s) by comment
+```
+
+Note that a suppression removes the finding before the severity threshold is evaluated, so it also stops a non
+permissive violation failing the build.
+
 ### Checkstyle configuration
 
 | Parameter       | Description                                         | Default |
