@@ -95,6 +95,13 @@ For continuous use across builds, include the plugin in your project’s pom.xml
                 <!-- Checker framework is disabled by default -->
                 <enabled>true</enabled>
             </checkerFramework>
+            <archUnit>
+                <!-- ArchUnit is disabled by default -->
+                <enabled>true</enabled>
+                <rules>
+                    <rule>com.example.arch.MyRules#NO_CYCLES</rule>
+                </rules>
+            </archUnit>
         </codeQuality>
     </configuration>
 </plugin>
@@ -166,3 +173,119 @@ For continuous use across builds, include the plugin in your project’s pom.xml
 | `checkers`                  | The list of checkers to be run.                                      | See `CheckerFrameworkConfiguration` class in your codebase. |
 | `compilerArgs`              | Custom compiler arguments.                                           | `[]`                                                        |
 | `versions.checkerFramework` | The Checker Framework version to use.                                | `3.48.1`                                                    |
+
+### ArchUnit configuration
+
+Evaluates [ArchUnit](https://www.archunit.org/) rules against the compiled classes of the module and reports the
+findings alongside the other analyzers, with the source file and line the violation belongs to.
+
+Unlike the other analyzers the checks are not built in: the rules come from the project. Running them here rather than
+as `@ArchTest` JUnit tests means they also run when the build skips tests, and that their findings reach the GitLab
+code quality report. A project which keeps its ArchUnit tests should be aware the rules are then evaluated twice, once
+by surefire and once here.
+
+| Parameter              | Description                                                             | Default |
+|------------------------|-------------------------------------------------------------------------|---------|
+| `enabled`              | Whether the ArchUnit analyzer should be enabled.                        | `false` |
+| `permissive`           | Whether the execution should be permissive (not fail on violations).    | `true`  |
+| `rules`                | Explicit rule references, see below.                                    | `[]`    |
+| `serviceLoaderEnabled` | Whether rule providers should be discovered from the test classpath.    | `true`  |
+| `analyzeTestClasses`   | Whether the test classes should be analyzed alongside the main classes. | `false` |
+| `severity`             | The severity reported for a rule without an entry in `ruleSeverities`.  | `MAJOR` |
+| `ruleSeverities`       | Severity per rule name, overriding `severity`.                          | `{}`    |
+
+#### Referencing rules explicitly
+
+Three forms are accepted. The referenced classes are loaded from the **test** classpath, so the rule library only has
+to be a test scoped dependency:
+
+```xml
+<archUnit>
+    <enabled>true</enabled>
+    <rules>
+        <!-- a static ArchRule field -->
+        <rule>com.example.arch.MyRules#NO_CYCLES</rule>
+        <!-- a static no-args method returning an ArchRule -->
+        <rule>com.example.arch.MyRules#noCycles()</rule>
+        <!-- every public static ArchRule field of the class, or the rules of an ArchRuleProvider -->
+        <rule>com.example.arch.MyRules</rule>
+    </rules>
+    <ruleSeverities>
+        <MyRules.NO_CYCLES>BLOCKER</MyRules.NO_CYCLES>
+    </ruleSeverities>
+</archUnit>
+```
+
+A rule is reported under `SimpleClassName.member`, which is also the key `ruleSeverities` is looked up by. Neither `#`
+nor the parentheses of a method reference are legal in an XML element name, hence the normalisation. An override
+matching no resolved rule is warned about rather than silently ignored.
+
+#### Providing rules from a library
+
+A rule library can register itself instead, so consuming projects need no configuration beyond enabling the step.
+Implement `ArchRuleProvider` and ship a service entry:
+
+```java
+public class MyRuleProvider implements ArchRuleProvider {
+    @Override
+    public Collection<NamedArchRule> rules() {
+        return List.of(NamedArchRule.of("NO_CYCLES", MyRules.NO_CYCLES));
+    }
+}
+```
+
+```
+META-INF/services/io.github.finoid.maven.plugins.codequality.archunit.ArchRuleProvider
+```
+
+Provider names are chosen by the library, so keep them usable as XML element names if consumers should be able to
+override their severity.
+
+#### Where the rules live
+
+Both sources load from a jar just as happily as from the module's own classes, so a shared rule library can be wired
+in two ways.
+
+As a test scoped dependency of the analyzed module:
+
+```xml
+<dependency>
+    <groupId>com.example</groupId>
+    <artifactId>arch-rules</artifactId>
+    <version>1.0.0</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Or as a dependency of the plugin declaration, which keeps it out of the project's own dependency tree entirely and
+lets a parent POM hand the rules to every module that inherits it:
+
+```xml
+<plugin>
+    <groupId>io.github.finoid</groupId>
+    <artifactId>codequality-maven-plugin</artifactId>
+    <dependencies>
+        <dependency>
+            <groupId>com.example</groupId>
+            <artifactId>arch-rules</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+</plugin>
+```
+
+Explicit references and service loader discovery work through either.
+
+#### Dependency resolution scope
+
+The goal keeps resolving dependencies in **compile** scope. Widening it to test scope would resolve the test
+dependencies of every module whether or not this step is enabled, and would fail the goal on a test dependency which
+cannot be resolved. The step resolves the test classpath itself, through `ProjectDependenciesResolver`, and only when
+it actually runs.
+
+#### Class loading
+
+Rules are loaded through a class loader over the test classpath of the module, delegating to the plugin's own class
+loader. ArchUnit therefore always resolves to the copy the plugin was built against. Rules compiled against another
+1.x release link fine against it, since the types they touch (`ArchRule`, `ArchCondition`, `DescribedPredicate`) are
+stable across the line, but a project on a future 2.x release would need the plugin upgraded in step.

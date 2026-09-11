@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.finoid.it</groupId>
+        <artifactId>archunit-reactor</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>rules</artifactId>
+    <name>rules</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <version>${archunit.version}</version>
+        </dependency>
+        <!-- For the ArchRuleProvider SPI only; the plugin supplies it at analysis time -->
+        <dependency>
+            <groupId>io.github.finoid</groupId>
+            <artifactId>codequality-maven-plugin</artifactId>
+            <version>${cq.plugin.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>

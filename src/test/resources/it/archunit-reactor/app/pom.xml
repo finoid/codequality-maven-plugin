@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.github.finoid.it</groupId>
+        <artifactId>archunit-reactor</artifactId>
+        <version>1.0</version>
+    </parent>
+
+    <artifactId>app</artifactId>
+    <name>app</name>
+
+    <dependencies>
+        <!-- The rules are only ever a test scoped dependency of the analyzed module -->
+        <dependency>
+            <groupId>io.github.finoid.it</groupId>
+            <artifactId>rules</artifactId>
+            <version>1.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>io.github.finoid</groupId>
+                <artifactId>codequality-maven-plugin</artifactId>
+                <version>${cq.plugin.version}</version>
+                <extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>code-quality</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>code-quality</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <codeQuality>
+                        <!-- Only ArchUnit, so the assertions of the test are not diluted by the other analyzers -->
+                        <checkstyle>
+                            <enabled>false</enabled>
+                        </checkstyle>
+                        <errorProne>
+                            <enabled>false</enabled>
+                        </errorProne>
+                        <checkerFramework>
+                            <enabled>false</enabled>
+                        </checkerFramework>
+                        <archUnit>
+                            <enabled>true</enabled>
+                            <permissive>${cq.it.archunit.permissive}</permissive>
+                            <!-- Referenced out of the dependency, by class and member -->
+                            <rules>
+                                <rule>it.rules.ItRules#NO_IMPL_SUFFIX</rule>
+                            </rules>
+                            <ruleSeverities>
+                                <ItRules.NO_IMPL_SUFFIX>BLOCKER</ItRules.NO_IMPL_SUFFIX>
+                            </ruleSeverities>
+                        </archUnit>
+                    </codeQuality>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

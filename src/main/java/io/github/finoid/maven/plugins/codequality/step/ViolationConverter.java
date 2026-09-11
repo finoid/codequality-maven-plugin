@@ -77,6 +77,40 @@ public class ViolationConverter {
             .build();
     }
 
+    /**
+     * Converts an ArchUnit violation into a {@link Violation}.
+     * <p>
+     * Unlike the analyzers which report a position, the fingerprint deliberately leaves out the line number. An
+     * ArchUnit violation identifies a structural fact about a named element, and the element's message already
+     * contains its fully qualified name; keying on the line as well would make the whole report look new to GitLab
+     * whenever unrelated edits shift the code down a line.
+     *
+     * @param rule        the name the rule is reported under
+     * @param description the violation message
+     * @param sourceFile  the file the violation is reported against
+     * @param lineNumber  the line the violation is reported against
+     * @param severity    the severity configured for the rule
+     * @return the violation
+     */
+    public Violation ofArchUnitViolation(final String rule, final String description, final File sourceFile, final int lineNumber,
+                                         final Severity severity) {
+        final File repositoryRoot = repositoryRoot();
+
+        final String absoluteFilePath = sourceFile.getAbsolutePath();
+
+        return Violation.builder()
+            .tool("ArchUnit")
+            .description(description)
+            .fingerprint(fingerprint(String.format("%s:%s:%s", relativePath(repositoryRoot, absoluteFilePath), rule, description)))
+            .severity(severity)
+            .relativePath(relativePath(repositoryRoot, absoluteFilePath))
+            .fullPath(absoluteFilePath.replace("\\", "/")) // Windows compatibility
+            .line(lineNumber)
+            .columnNumber(0)
+            .rule(rule)
+            .build();
+    }
+
     public Violation ofCheckerFrameworkViolationMatcher(final Matcher violationMatcher) {
         final File repositoryRoot = repositoryRoot();
 

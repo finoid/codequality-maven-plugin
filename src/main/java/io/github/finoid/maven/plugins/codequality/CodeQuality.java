@@ -10,6 +10,7 @@ import io.github.finoid.maven.plugins.codequality.filter.ViolationsFilterService
 import io.github.finoid.maven.plugins.codequality.handlers.CleanHandler;
 import io.github.finoid.maven.plugins.codequality.report.Severity;
 import io.github.finoid.maven.plugins.codequality.report.ViolationReporter;
+import io.github.finoid.maven.plugins.codequality.step.ArchUnitStep;
 import io.github.finoid.maven.plugins.codequality.step.CheckerFrameworkStep;
 import io.github.finoid.maven.plugins.codequality.step.CheckstyleStep;
 import io.github.finoid.maven.plugins.codequality.step.ErrorProneStep;
@@ -39,6 +40,7 @@ public class CodeQuality extends AbstractMojo {
     private final CheckstyleStep checkstyleStep;
     private final ErrorProneStep errorProneStep;
     private final CheckerFrameworkStep checkerFrameworkStep;
+    private final ArchUnitStep archUnitStep;
     private final CleanHandler cleanHandler;
     private final StepResultsRepository stepResultsRepository;
     private final ReactorCompletionTracker reactorCompletionTracker;
@@ -69,6 +71,7 @@ public class CodeQuality extends AbstractMojo {
         final CheckstyleStep checkstyleStep,
         final ErrorProneStep errorProneStep,
         final CheckerFrameworkStep checkerFrameworkStep,
+        final ArchUnitStep archUnitStep,
         final CleanHandler cleanHandler,
         final MavenSession mavenSession,
         final MavenProject project,
@@ -81,6 +84,7 @@ public class CodeQuality extends AbstractMojo {
         this.checkstyleStep = Precondition.nonNull(checkstyleStep, "CheckstyleStep shouldn't be null");
         this.errorProneStep = Precondition.nonNull(errorProneStep, "ErrorProneStep shouldn't be null");
         this.checkerFrameworkStep = Precondition.nonNull(checkerFrameworkStep, "CheckerFrameworkStep shouldn't be null");
+        this.archUnitStep = Precondition.nonNull(archUnitStep, "ArchUnitStep shouldn't be null");
         this.cleanHandler = Precondition.nonNull(cleanHandler, "CleanHandler shouldn't be null");
         this.stepResultsRepository = Precondition.nonNull(stepResultsRepository, "StepResultsRepository shouldn't be null");
         this.reactorCompletionTracker = Precondition.nonNull(reactorCompletionTracker, "ReactorCompletionTracker shouldn't be null");
@@ -126,7 +130,8 @@ public class CodeQuality extends AbstractMojo {
             context.getProject().getName(),
             executeStep(checkstyleStep, codeQualityConfiguration, codeQualityConfiguration.getCheckstyle(), context),
             executeStep(errorProneStep, codeQualityConfiguration, codeQualityConfiguration.getErrorProne(), context),
-            executeStep(checkerFrameworkStep, codeQualityConfiguration, codeQualityConfiguration.getCheckerFramework(), context)
+            executeStep(checkerFrameworkStep, codeQualityConfiguration, codeQualityConfiguration.getCheckerFramework(), context),
+            executeStep(archUnitStep, codeQualityConfiguration, codeQualityConfiguration.getArchUnit(), context)
         );
 
         stepResultsRepository.store(context.getProject(), projectStepResults);

@@ -37,6 +37,9 @@ public class CodeQualityConfiguration {
     @Parameter
     private CheckerFrameworkConfiguration checkerFramework = new CheckerFrameworkConfiguration();
 
+    @Parameter
+    private ArchUnitConfiguration archUnit = new ArchUnitConfiguration();
+
     /**
      * List of annotation processor paths.
      */

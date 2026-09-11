@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import java.io.File;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Utility class for working with Maven projects, dependencies, and source directories.
@@ -22,6 +23,12 @@ public final class ProjectUtils {
      * The {@code groupId:artifactId} of this plugin.
      */
     public static final String PLUGIN_KEY = "io.github.finoid:codequality-maven-plugin";
+
+    /**
+     * The scopes making up the compile classpath, being the classpath the analyzers compile the main sources against.
+     */
+    private static final Set<String> COMPILE_CLASS_PATH_SCOPES =
+        Set.of(Artifact.SCOPE_COMPILE, Artifact.SCOPE_PROVIDED, Artifact.SCOPE_SYSTEM);
 
     /**
      * Resolves a list of files from the given source directories in the specified Maven project.
@@ -47,20 +54,29 @@ public final class ProjectUtils {
     }
 
     /**
-     * Checks if a specific dependency is present on the classpath.
+     * Checks if a specific dependency is present on the compile classpath.
+     * <p>
+     * Deliberately filtered by scope rather than answered from every resolved artifact. The analyzers compile the
+     * main sources against the compile classpath, so a test or runtime scoped Lombok or checker-qual must not look
+     * like it were available to them - the Checker Framework step would otherwise pass its prerequisite and then fail
+     * the forked compile. The goal resolves dependencies in compile scope today, which makes the filter a safeguard
+     * rather than a correction, and keeps the answer correct should the scope ever be widened.
      *
      * @param project    the Maven project whose dependencies are checked.
      * @param groupId    the group ID of the dependency.
      * @param artifactId the artifact ID of the dependency.
-     * @return {@code true} if the dependency is found on the classpath, {@code false} otherwise.
+     * @return {@code true} if the dependency is found on the compile classpath, {@code false} otherwise.
      */
     public static boolean isPresentOnClassPath(final MavenProject project, final String groupId, final String artifactId) {
         return project.getArtifacts().stream()
+            .filter(ProjectUtils::isOnCompileClassPath)
             .anyMatch(it -> groupId.equals(it.getGroupId()) && artifactId.equals(it.getArtifactId()));
     }
 
     /**
-     * Retrieves the version of an optional dependency from the project's classpath.
+     * Retrieves the version of an optional dependency from the project's compile classpath.
+     * <p>
+     * Scoped the same way as {@link #isPresentOnClassPath(MavenProject, String, String)}, and for the same reason.
      *
      * @param project    the Maven project whose dependencies are checked.
      * @param groupId    the group ID of the dependency.
@@ -69,9 +85,22 @@ public final class ProjectUtils {
      */
     public static Optional<String> optionalArtifactVersion(final MavenProject project, final String groupId, final String artifactId) {
         return project.getArtifacts().stream()
+            .filter(ProjectUtils::isOnCompileClassPath)
             .filter(artifact -> groupId.equals(artifact.getGroupId()) && artifactId.equals(artifact.getArtifactId()))
             .map(Artifact::getVersion)
             .findFirst();
+    }
+
+    /**
+     * Whether the artifact ends up on the compile classpath.
+     * <p>
+     * An artifact resolved without a scope is treated as compile scoped, matching how Maven defaults a dependency
+     * which declares none.
+     */
+    private static boolean isOnCompileClassPath(final Artifact artifact) {
+        final String scope = artifact.getScope();
+
+        return scope == null || COMPILE_CLASS_PATH_SCOPES.contains(scope);
     }
 
     /**
