@@ -4,14 +4,11 @@ import de.vandermeer.asciitable.AsciiTable;
 import de.vandermeer.asciitable.CWC_LongestLine;
 import de.vandermeer.asciithemes.TA_GridThemes;
 import de.vandermeer.skb.interfaces.transformers.textformat.TextAlignment;
-import io.github.finoid.maven.plugins.codequality.ExecutionContext;
-import io.github.finoid.maven.plugins.codequality.filter.Violations;
 import org.apache.maven.plugin.logging.Log;
 
 import javax.inject.Named;
 import javax.inject.Singleton;
 import java.util.List;
-import java.util.Locale;
 
 /**
  * A table console-based implementation of {@link ViolationReporter} that logs code quality violations
@@ -22,35 +19,30 @@ import java.util.Locale;
  */
 @Named("console-table")
 @Singleton
-public class ConsoleTableViolationReporter implements ViolationReporter {
+public class ConsoleTableViolationReporter extends AbstractConsoleViolationReporter {
     public static final String NAME = "CONSOLE_TABLE";
 
-    private static final String GREEN = "\u001B[32m";
-    private static final String YELLOW = "\u001B[33m";
-    private static final String RESET = "\u001B[0m";
+    /**
+     * The width, in characters, the table is rendered at.
+     */
+    private static final int TABLE_WIDTH = 200;
 
     /**
-     * Reports all violations of at least {@link Severity#MINOR} level by grouping them
-     * into permissive and non-permissive categories, and logs each group with formatting
-     * and severity-based log levels.
-     *
-     * @param context    the context of the current mojo execution
-     * @param violations the results of executed code analysis steps containing violations
+     * The padding, in characters, on either side of every cell.
      */
-    @Override
-    public void report(final ExecutionContext context, final Violations violations) {
-        final Log log = context.getLog();
-
-        logViolationsForType(log, violations.getPermissiveViolations(), PermissiveType.PERMISSIVE);
-        logViolationsForType(log, violations.getNonPermissiveViolations(), PermissiveType.NON_PERMISSIVE);
-    }
+    private static final int CELL_PADDING = 1;
 
     @Override
     public String name() {
         return NAME;
     }
 
-    private String renderTable(final List<Violation> violations) {
+    @Override
+    protected void logViolations(final Log log, final List<Violation> violations, final PermissiveType permissiveType) {
+        logWithLevel(log, permissiveType, System.lineSeparator() + renderTable(violations));
+    }
+
+    private static String renderTable(final List<Violation> violations) {
         final AsciiTable table = new AsciiTable();
 
         // Add the header
@@ -60,8 +52,6 @@ public class ConsoleTableViolationReporter implements ViolationReporter {
 
         // Add each individual violation as a row
         violations.forEach(it -> {
-            table.setPadding(1);
-
             table.addRow(
                 it.getTool(),
                 it.getRule(),
@@ -71,56 +61,23 @@ public class ConsoleTableViolationReporter implements ViolationReporter {
             table.addRule();
         });
 
+        // Applies to the rows added so far, so it has to happen once every row is in place
+        table.setPadding(CELL_PADDING);
         table.setTextAlignment(TextAlignment.LEFT);
-        table.getContext().setGridTheme(TA_GridThemes.FULL);
+        table.getContext()
+            .setGridTheme(TA_GridThemes.FULL);
 
         final CWC_LongestLine cwc = new CWC_LongestLine();
         table.getRenderer()
             .setCWC(cwc);
 
-        // Override specific column width ratios (relative percentages)
-        cwc.add(10, 15)   // Type
+        // Override the minimum and maximum width of each column
+        cwc.add(10, 15)   // Tool
             .add(20, 20)  // Rule
-            .add(40, 60)  // Description!)
+            .add(40, 60)  // Description
             .add(25, 50)  // Path
-            .add(12, 20); // Column number
+            .add(12, 20); // Line/Column number
 
-        return table.render(200);
-    }
-
-    private void logViolationsForType(final Log log, final List<Violation> violations, final PermissiveType permissiveType) {
-        if (violations.isEmpty()) {
-            log.info(String.format("✅ %s ##### No %s violations found ##### %s ✅ ", GREEN, permissiveType.displayName(), RESET));
-            return;
-        }
-
-        final String message = String.format("%s ##### found %d %s violations ##### %s",
-            (permissiveType == PermissiveType.NON_PERMISSIVE) ? YELLOW : GREEN,
-            violations.size(),
-            permissiveType.displayName(),
-            RESET
-        );
-
-        logWithLevel(log, permissiveType, (permissiveType == PermissiveType.NON_PERMISSIVE ? "⚠ " : "✅ ") + message);
-
-        log.info(System.lineSeparator() + renderTable(violations));
-    }
-
-    private static void logWithLevel(final Log log, final PermissiveType permissiveType, final String message) {
-        if (permissiveType == PermissiveType.NON_PERMISSIVE) {
-            log.warn(message);
-        } else {
-            log.info(message);
-        }
-    }
-
-    private enum PermissiveType {
-        PERMISSIVE,
-        NON_PERMISSIVE;
-
-        private String displayName() {
-            return name().replace('_', ' ')
-                .toLowerCase(Locale.ROOT);
-        }
+        return table.render(TABLE_WIDTH);
     }
 }
