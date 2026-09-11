@@ -68,7 +68,7 @@ class ArchUnitAnalyzerUnitTest extends UnitTest {
             .haveSimpleName("SomethingElse")
             .allowEmptyShould(true);
 
-        final List<Violation> violations = unit.analyze(List.of(NamedArchRule.of("NAMING", rule)), configuration(), context);
+        final List<Violation> violations = unit.analyze(classDirectories(), List.of(NamedArchRule.of("NAMING", rule)), configuration(), context);
 
         Assertions.assertEquals(1, violations.size());
 
@@ -92,7 +92,7 @@ class ArchUnitAnalyzerUnitTest extends UnitTest {
             .haveSimpleName("ArchUnitAnalyzer")
             .allowEmptyShould(true);
 
-        Assertions.assertTrue(unit.analyze(List.of(NamedArchRule.of("NAMING", rule)), configuration(), context).isEmpty());
+        Assertions.assertTrue(unit.analyze(classDirectories(), List.of(NamedArchRule.of("NAMING", rule)), configuration(), context).isEmpty());
     }
 
     @Test
@@ -109,7 +109,7 @@ class ArchUnitAnalyzerUnitTest extends UnitTest {
             .haveSimpleName("SomethingElse")
             .allowEmptyShould(true);
 
-        final List<Violation> violations = unit.analyze(List.of(NamedArchRule.of("NAMING", rule)), configuration, context);
+        final List<Violation> violations = unit.analyze(classDirectories(), List.of(NamedArchRule.of("NAMING", rule)), configuration, context);
 
         Assertions.assertEquals(Severity.BLOCKER, violations.getFirst().getSeverity());
     }
@@ -124,8 +124,8 @@ class ArchUnitAnalyzerUnitTest extends UnitTest {
             .haveSimpleName("SomethingElse")
             .allowEmptyShould(true);
 
-        final List<Violation> first = unit.analyze(List.of(NamedArchRule.of("NAMING", rule)), configuration(), context);
-        final List<Violation> second = unit.analyze(List.of(NamedArchRule.of("NAMING", rule)), configuration(), context);
+        final List<Violation> first = unit.analyze(classDirectories(), List.of(NamedArchRule.of("NAMING", rule)), configuration(), context);
+        final List<Violation> second = unit.analyze(classDirectories(), List.of(NamedArchRule.of("NAMING", rule)), configuration(), context);
 
         Assertions.assertEquals(first.getFirst().getFingerprint(), second.getFirst().getFingerprint());
     }
@@ -142,7 +142,11 @@ class ArchUnitAnalyzerUnitTest extends UnitTest {
 
         final ExecutionContext emptyContext = ExecutionContext.of(emptyProject, log);
 
-        Assertions.assertTrue(unit.analyze(List.of(), configuration(), emptyContext).isEmpty());
+        Assertions.assertTrue(unit.analyze(List.of(), List.of(), configuration(), emptyContext).isEmpty());
+    }
+
+    private static List<Path> classDirectories() {
+        return List.of(WORKING_DIRECTORY.resolve("target/classes"));
     }
 
     private static ArchUnitConfiguration configuration() {

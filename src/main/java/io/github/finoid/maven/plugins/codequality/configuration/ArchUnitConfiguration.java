@@ -49,6 +49,21 @@ public class ArchUnitConfiguration implements Configuration {
     private boolean serviceLoaderEnabled = true;
 
     /**
+     * Whether the module should be compiled when it has not been already.
+     * <p>
+     * Off by default. In the ordinary binding the goal runs at {@code verify}, where the classes are long since
+     * built, and a code quality goal quietly compiling the module is a side effect nobody asked for - a compilation
+     * failure would surface as a code quality failure. Switch it on to invoke the goal directly, without putting a
+     * phase in front of it.
+     * <p>
+     * The compilation is a separate one, into {@code target/archunit-classes}, so it neither overwrites nor satisfies
+     * the output of the build itself. It reproduces the release level and the annotation processors of the module,
+     * but not a bespoke compiler configuration, so what is analyzed may differ from what the build produces.
+     */
+    @Parameter(property = "cq.archunit.compileIfMissing")
+    private boolean compileIfMissing = false;
+
+    /**
      * Whether the test classes of the module should be analyzed alongside its main classes.
      * <p>
      * Off by default: rules describing production structure tend to report the test fixtures which deliberately
