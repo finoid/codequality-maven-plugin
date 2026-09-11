@@ -191,6 +191,7 @@ by surefire and once here.
 | `rules`                | Explicit rule references, see below.                                    | `[]`    |
 | `serviceLoaderEnabled` | Whether rule providers should be discovered from the test classpath.    | `true`  |
 | `analyzeTestClasses`   | Whether the test classes should be analyzed alongside the main classes. | `false` |
+| `compileIfMissing`     | Whether to compile the module when it has not been compiled already.    | `false` |
 | `severity`             | The severity reported for a rule without an entry in `ruleSeverities`.  | `MAJOR` |
 | `ruleSeverities`       | Severity per rule name, overriding `severity`.                          | `{}`    |
 
@@ -240,6 +241,38 @@ META-INF/services/io.github.finoid.maven.plugins.codequality.archunit.ArchRulePr
 
 Provider names are chosen by the library, so keep them usable as XML element names if consumers should be able to
 override their severity.
+
+#### Phase requirement
+
+The step reads the classes the build has already produced, rather than forking a compiler of its own the way Error
+Prone and the Checker Framework do. It therefore has to run at or after `compile`. Bound to an earlier phase, or
+invoked on the command line ahead of one, it reports a missing prerequisite and skips:
+
+```
+[INFO] Step ARCH_UNIT is missing prerequisites to run. Cause: the module has no compiled classes,
+       the goal has to run at or after the compile phase. Skipping...
+```
+
+Running the goal directly therefore needs a phase in front of it:
+
+```shell
+mvn clean compile io.github.finoid:codequality-maven-plugin:code-quality@maven-code-quality
+```
+
+Or let the step compile the module itself:
+
+```xml
+<archUnit>
+    <enabled>true</enabled>
+    <compileIfMissing>true</compileIfMissing>
+</archUnit>
+```
+
+The compilation goes into `target/archunit-classes`, so it neither overwrites the output of the build nor leads a
+later phase to believe the module is already built, and that directory is cleaned before each run. It reproduces the
+release level and the annotation processors of the module, which covers a Lombok using service, but not a bespoke
+compiler configuration - additional compiler arguments, generated source roots, a module path. Where that matters,
+run the goal after the compile phase instead and analyze exactly what the build produced.
 
 #### Where the rules live
 

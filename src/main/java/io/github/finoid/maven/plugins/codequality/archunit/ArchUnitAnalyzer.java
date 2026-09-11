@@ -11,12 +11,10 @@ import io.github.finoid.maven.plugins.codequality.configuration.ArchUnitConfigur
 import io.github.finoid.maven.plugins.codequality.report.Violation;
 import io.github.finoid.maven.plugins.codequality.step.ViolationConverter;
 import io.github.finoid.maven.plugins.codequality.util.Precondition;
-import org.apache.maven.project.MavenProject;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import java.io.File;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,18 +38,19 @@ public class ArchUnitAnalyzer {
     /**
      * Evaluates the given rules.
      *
-     * @param rules         the rules to evaluate
-     * @param configuration the step configuration
-     * @param context       the context of the current mojo execution
+     * @param classDirectories the directories holding the compiled classes to analyze
+     * @param rules            the rules to evaluate
+     * @param configuration    the step configuration
+     * @param context          the context of the current mojo execution
      * @return the violations found, empty when there is nothing to analyze
      */
-    public List<Violation> analyze(final List<NamedArchRule> rules, final ArchUnitConfiguration configuration,
-                                   final ExecutionContext context) {
-        final List<Path> classDirectories = classDirectoriesOf(context.getProject(), configuration.isAnalyzeTestClasses());
-
+    public List<Violation> analyze(final List<Path> classDirectories, final List<NamedArchRule> rules,
+                                   final ArchUnitConfiguration configuration, final ExecutionContext context) {
         if (classDirectories.isEmpty()) {
+            // Normally unreachable, the step declares the output directory as a prerequisite. Warned about rather
+            // than debugged, so an empty analysis is never mistaken for a clean one.
             context.getLog()
-                .debug("No compiled classes to analyze with ArchUnit. Skipping...");
+                .warn("No compiled classes to analyze with ArchUnit, every rule will report nothing. Skipping...");
 
             return List.of();
         }
@@ -128,23 +127,4 @@ public class ArchUnitAnalyzer {
             .trim();
     }
 
-    private static List<Path> classDirectoriesOf(final MavenProject project, final boolean includeTestClasses) {
-        final List<Path> directories = new ArrayList<>();
-
-        addIfDirectory(directories, project.getBuild().getOutputDirectory());
-
-        if (includeTestClasses) {
-            addIfDirectory(directories, project.getBuild().getTestOutputDirectory());
-        }
-
-        return directories;
-    }
-
-    private static void addIfDirectory(final List<Path> directories, final String directory) {
-        final Path path = Path.of(directory);
-
-        if (Files.isDirectory(path)) {
-            directories.add(path);
-        }
-    }
 }
