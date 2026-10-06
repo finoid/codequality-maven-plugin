@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 @Data
+// Lombok copies field javadoc onto generated accessors, which ErrorProne fails to parse
+@SuppressWarnings("UnrecognisedJavadocTag")
 public class ArchUnitConfiguration implements Configuration {
     /**
      * Whether the ArchUnit analyzer should be enabled or disabled.
