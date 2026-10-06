@@ -51,6 +51,8 @@ public class TestClassPathResolver {
      * @return the classpath entries, in classpath order
      * @throws CodeQualityException in case the dependencies cannot be resolved
      */
+    // Artifact#getPath() requires Maven Resolver 2 (Maven 3.10+), but Maven 3.9 is still supported
+    @SuppressWarnings("deprecation")
     public List<URL> resolve(final MavenProject project) {
         final List<URL> classPath = new ArrayList<>();
 
