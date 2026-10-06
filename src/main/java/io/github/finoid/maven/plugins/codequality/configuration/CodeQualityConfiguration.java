@@ -15,6 +15,8 @@ import java.util.Set;
  * The configuration for the maven code-quality plugin.
  */
 @Data
+// Lombok copies field javadoc onto generated accessors, which ErrorProne fails to parse
+@SuppressWarnings("UnrecognisedJavadocTag")
 public class CodeQualityConfiguration {
     /**
      * Whether the code-quality analyzer should be enabled or disabled.
