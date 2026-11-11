@@ -36,7 +36,7 @@
         <nullaway.version>0.14.3</nullaway.version>
         <checker-qual.version>4.4.0</checker-qual.version>
         <commons-codec.version>1.23.0</commons-codec.version>
-        <commons-lang3.version>3.21.0</commons-lang3.version>
+        <commons-lang3.version>3.22.0</commons-lang3.version>
         <commons-logging.version>1.4.0</commons-logging.version>
         <doxia.version>2.2.0</doxia.version>
         <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
